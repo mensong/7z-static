@@ -6,6 +6,7 @@
 #include "../CPP/Common/MyCom.h"
 #include "../CPP/Common/MyWindows.h"
 
+#pragma comment(lib, "Shlwapi.lib")
 
 namespace SevenZip
 {

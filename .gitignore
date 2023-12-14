@@ -4,3 +4,9 @@
 /Backup
 /.vs
 /7z.vcxproj.user
+/Win32
+/tmp
+/x64
+/Test/test
+/Test/tmp
+/Test/test.7z
