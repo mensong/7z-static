@@ -28,6 +28,8 @@ namespace SevenZip
         {
             if (*m_directory.rbegin() != L'\\' && *m_directory.rbegin() != L'/')
                 m_directory +=L'\\';
+            //把目录转为绝对路径
+            m_directory = FileSys::GetAbsolutePath(m_directory);
         }
 
         ArchiveExtractCallback::~ArchiveExtractCallback()

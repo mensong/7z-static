@@ -140,6 +140,14 @@ TString FileSys::ExtractRelativePath( const TString& basePath, const TString& fu
 	return fullPath.substr( basePath.size(), fullPath.size() - basePath.size() );
 }
 
+TString FileSys::GetAbsolutePath(const TString& originalFilePath)
+{
+	TCHAR dir[MAX_PATH] = { 0 };
+	if (GetFullPathName(originalFilePath.c_str(), MAX_PATH, dir, NULL) != 0)
+		return dir;
+	return originalFilePath;
+}
+
 bool FileSys::DirectoryExists( const TString& path )
 {
 	DWORD attributes = GetFileAttributes( path.c_str() );

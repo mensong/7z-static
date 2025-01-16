@@ -17,6 +17,7 @@ namespace intl
 		static TString GetFileName( const TString& filePathOrName );
 		static TString AppendPath( const TString& left, const TString& right );
 		static TString ExtractRelativePath( const TString& basePath, const TString& fullPath );
+		static TString GetAbsolutePath( const TString& originalFilePath );
 
         static TString GetUniquePath(const TString& path);
 

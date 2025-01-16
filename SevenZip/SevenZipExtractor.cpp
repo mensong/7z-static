@@ -42,7 +42,7 @@ namespace SevenZip
             return ERROR_OPEN_FAILED;	//Could not open archive
         }
 
-		return ExtractArchive(fileStream, destDirectory, callback,pSevenZipPassword);
+		return ExtractArchive(fileStream, destDirectory, callback, pSevenZipPassword);
     }
 
 	HRESULT SevenZipExtractor::ExtractArchive(const CMyComPtr< IStream >& archiveStream, const TString& destDirectory, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword)
