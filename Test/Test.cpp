@@ -16,7 +16,7 @@ int main()
 		SevenZip::SevenZipCompressor compress;
 		compress.SetArchivePath(L"test.7z");
 		compress.SetEncryptFileName(true);
-		if (ret != compress.CompressFiles(L"tmp", L"*.*", NULL, true, &pwd))
+		if (ret != compress.CompressFiles(L"tmp", L"*", NULL, true, &pwd))
 		{
 			wprintf_s(L"compress dir to 7z failed\n");
 			return 1;

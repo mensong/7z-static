@@ -81,6 +81,10 @@ void PathScanner::ExamineDirectories( const TString& directory, std::deque< TStr
 		if ( fpInfo.IsDirectory && !IsSpecialFileName( fpInfo.FileName ) && cb.ShouldDescend( fpInfo ) )
 		{
 			subDirs.push_back( fpInfo.FilePath );
+
+			//文件夹（包括空文件夹）也要一起压缩
+			bool exit = false;
+			cb.ExamineFile(fpInfo, exit);
 		}
 	} 
 	while ( FindNextFile( hFile, &fdata ) );

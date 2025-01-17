@@ -93,10 +93,10 @@ HRESULT SevenZipCompressor::FindAndCompressFiles(const TString& directory, const
 		return HRESULT_FROM_WIN32(GetLastError());	//Directory does not exist
 	}
 	
-	if ( FileSys::IsDirectoryEmptyRecursive( directory ) )
-	{
-        return ERROR_EMPTY;	//Directory \"%s\" is empty" ), directory.c_str()
-	}
+	//if ( FileSys::IsDirectoryEmptyRecursive( directory ) )
+	//{
+    //    return ERROR_EMPTY;	//Directory \"%s\" is empty" ), directory.c_str()
+	//}
 
 	m_outputPath = directory;
 
