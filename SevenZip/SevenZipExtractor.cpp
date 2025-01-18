@@ -24,7 +24,12 @@ namespace SevenZip
     }
 
 
-	HRESULT SevenZipExtractor::ExtractArchive(const TString& destDirectory, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword)
+	HRESULT SevenZipExtractor::ExtractArchive(
+        const TString& destDirectory, 
+        ProgressCallback* callback, 
+        ExtractItemCallback* itemCallback,
+        SevenZipPassword *pSevenZipPassword,
+        bool testMode)
     {
         DetectCompressionFormat();
         CMyComPtr< IStream > fileStream = FileSys::OpenFileToRead(m_archivePath);
@@ -42,10 +47,16 @@ namespace SevenZip
             return ERROR_OPEN_FAILED;	//Could not open archive
         }
 
-		return ExtractArchive(fileStream, destDirectory, callback, pSevenZipPassword);
+		return ExtractArchive(fileStream, destDirectory, callback, itemCallback, testMode, pSevenZipPassword);
     }
 
-	HRESULT SevenZipExtractor::ExtractArchive(const CMyComPtr< IStream >& archiveStream, const TString& destDirectory, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword)
+	HRESULT SevenZipExtractor::ExtractArchive(
+        const CMyComPtr< IStream >& archiveStream, 
+        const TString& destDirectory, 
+        ProgressCallback* callback, 
+        ExtractItemCallback* itemCallback,
+        bool testMode,
+        SevenZipPassword *pSevenZipPassword)
     {
         CMyComPtr< IInArchive > archive = UsefulFunctions::GetArchiveReader(m_compressionFormat);
         CMyComPtr< InStreamWrapper > inFile = new InStreamWrapper(archiveStream);
@@ -128,7 +139,15 @@ namespace SevenZip
             }
         }
 
-        CMyComPtr< ArchiveExtractCallback > extractCallback = new ArchiveExtractCallback(archive, destDirectory, m_overwriteMode, callback);
+        if (itemCallback)
+        {
+            UInt32 mynumofitems = 0;
+            hr = archive->GetNumberOfItems(&mynumofitems);
+            itemCallback->OnStart(m_archivePath, mynumofitems);
+        }
+
+        CMyComPtr< ArchiveExtractCallback > extractCallback = new ArchiveExtractCallback(
+            archive, destDirectory, m_overwriteMode, callback, itemCallback, testMode);
 		if (NULL != pSevenZipPassword)
 		{
 			extractCallback->PasswordIsDefined = pSevenZipPassword->PasswordIsDefined;
@@ -150,6 +169,10 @@ namespace SevenZip
         if (callback)
         {
             callback->OnEnd(m_archivePath);
+        }
+        if (itemCallback)
+        {
+            itemCallback->OnEnd();
         }
         archive->Close();
         return hr;

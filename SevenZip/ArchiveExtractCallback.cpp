@@ -17,17 +17,20 @@ namespace SevenZip
             const CMyComPtr< IInArchive >& archiveHandler,
             const TString& directory,
             OverwriteModeEnum mode,
-            ProgressCallback* callback)
-            : m_refCount(0)
+            ProgressCallback* callback,
+            ExtractItemCallback* itemCallback,
+            bool testMode)
+            : ExtractItemInfo(directory)
+            , m_refCount(0)
             , m_archiveHandler(archiveHandler)
-            , m_directory(directory)
             , m_callback(callback)
+            , m_itemCallback(itemCallback)
             , m_overwriteMode(mode)
-            , m_totalSize(0)
 			, PasswordIsDefined(false)
+            , m_testMode(testMode)
         {
             if (*m_directory.rbegin() != L'\\' && *m_directory.rbegin() != L'/')
-                m_directory +=L'\\';
+				m_directory += L'\\';
             //把目录转为绝对路径
             m_directory = FileSys::GetAbsolutePath(m_directory);
         }
@@ -156,11 +159,14 @@ namespace SevenZip
                 return ex.Error();
             }
 
-            if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
-                return S_OK;
-
+            m_index = index;
             // TODO: m_directory could be a relative path as "..\"
             m_absPath = FileSys::AppendPath(m_directory, m_relPath);
+
+            if (m_testMode)
+                return S_OK;
+            if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
+                return S_OK;
 
             if (m_isDir)
             {
@@ -263,6 +269,8 @@ namespace SevenZip
 
         STDMETHODIMP ArchiveExtractCallback::PrepareOperation(Int32 /*askExtractMode*/)
         {
+            if (m_itemCallback)
+                m_itemCallback->OnItem(this);
             return S_OK;
         }
 

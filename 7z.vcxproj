@@ -648,6 +648,8 @@
     <ClInclude Include="SevenZip\CompressionLevel.h" />
     <ClInclude Include="SevenZip\Enum.h" />
     <ClInclude Include="SevenZip\ErpExcept.h" />
+    <ClInclude Include="SevenZip\ExtractItemCallback.h" />
+    <ClInclude Include="SevenZip\ExtractItemInfo.h" />
     <ClInclude Include="SevenZip\FileInfo.h" />
     <ClInclude Include="SevenZip\FileStream.h" />
     <ClInclude Include="SevenZip\FileStreamMemory.h" />

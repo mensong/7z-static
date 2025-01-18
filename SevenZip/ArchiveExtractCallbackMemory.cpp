@@ -130,19 +130,22 @@ namespace SevenZip
 		{
 			try
 			{
-				// Retrieve all the various properties for the file at this index.
-				GetPropertyFilePath(index);
-				if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
-				{
-					return S_OK;
-				}
+                // Retrieve all the various properties for the file at this index.
 
-				GetPropertyAttributes(index);
-				GetPropertyIsDir(index);
-				GetPropertyModifiedTime(index);
-				GetPropertyCreatedTime(index);
-				GetPropertyAccessedTime(index);
-				GetPropertySize(index);
+                //获得压缩包中节点的相对文件名/文件夹名                
+                GetPropertyFilePath(index);
+                //获得压缩包中的文件/文件夹的属性
+                GetPropertyAttributes(index);
+                //获得压缩包中节点是否是目录节点
+                GetPropertyIsDir(index);
+                //获得压缩包中节点的修改时间
+                GetPropertyModifiedTime(index);
+                //获得压缩包中节点的创建时间
+                GetPropertyCreatedTime(index);
+                //获得压缩包中节点的最后访问时间
+                GetPropertyAccessedTime(index);
+                //获得压缩包中节点的大小
+                GetPropertySize(index);
 			}
 			catch (_com_error& ex)
 			{
@@ -152,6 +155,9 @@ namespace SevenZip
 
 			// TODO: m_directory could be a relative path as "..\"
 			m_absPath = m_relPath;
+
+            if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
+                return S_OK;
 
 			if (m_isDir)
 			{

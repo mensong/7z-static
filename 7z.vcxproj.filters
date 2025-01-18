@@ -1358,6 +1358,12 @@
     <ClInclude Include="CPP\7zip\Compress\ZlibEncoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SevenZip\ExtractItemCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZip\ExtractItemInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Asm\x86\7zCrcOpt.asm">

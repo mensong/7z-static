@@ -9,57 +9,72 @@
 
 #include "CompressionFormat.h"
 #include "ProgressCallback.h"
+#include "ExtractItemCallback.h"
+#include "ExtractItemInfo.h"
 
 namespace SevenZip
 {
 namespace intl
 {
 	class ArchiveExtractCallback 
-        : public IArchiveExtractCallback
+        : public ExtractItemInfo
+		, public IArchiveExtractCallback
         , public ICryptoGetTextPassword
         , public ICompressProgressInfo
 	{
 	public: 
 		bool PasswordIsDefined;
 		UString Password;
+
 	private:
 
 		long m_refCount;
 		CMyComPtr< IInArchive > m_archiveHandler;
-		TString m_directory;
 
-		TString m_relPath;
-		TString m_absPath;
-		bool m_isDir;
+		//TString m_directory;
 
-		bool m_hasAttrib;
-		UInt32 m_attrib;
+		//TString m_relPath;
+		//TString m_absPath;
+		//bool m_isDir;
 
-		bool m_hasModifiedTime;
-		FILETIME m_modifiedTime;
-        bool m_hasAccessedTime;
-        FILETIME m_accessedTime;
-        bool m_hasCreatedTime;
-        FILETIME m_createdTime;
+		//bool m_hasAttrib;
+		//UInt32 m_attrib;
 
-		bool m_hasNewFileSize;
-		UInt64 m_newFileSize;
+		//bool m_hasModifiedTime;
+		//FILETIME m_modifiedTime;
+  //      bool m_hasAccessedTime;
+  //      FILETIME m_accessedTime;
+  //      bool m_hasCreatedTime;
+  //      FILETIME m_createdTime;
+
+		//bool m_hasNewFileSize;
+		//UInt64 m_newFileSize;
+
+		//UInt64 m_totalSize;
 
         OverwriteModeEnum m_overwriteMode;
 
 		ProgressCallback* m_callback;
-
-        UInt64 m_totalSize;
-
+		ExtractItemCallback* m_itemCallback;
+		        
         struct RollBack_Info
         {
             TString original_path;
             TString backup_path;
         };
         std::vector<RollBack_Info> m_rollbacks;
+
+		bool m_testMode;
+
 	public:
 
-        ArchiveExtractCallback(const CMyComPtr< IInArchive >& archiveHandler, const TString& directory, OverwriteModeEnum mode, ProgressCallback* callback);
+        ArchiveExtractCallback(
+			const CMyComPtr< IInArchive >& archiveHandler, 
+			const TString& directory, 
+			OverwriteModeEnum mode, 
+			ProgressCallback* callback,
+			ExtractItemCallback* itemCallback,
+			bool testMode);
 		virtual ~ArchiveExtractCallback();
 
 		STDMETHOD(QueryInterface)( REFIID iid, void** ppvObject );

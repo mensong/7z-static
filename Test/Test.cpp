@@ -7,6 +7,26 @@
 #include "SevenZip/SevenZipExtractorMemory.h"
 #include "SevenZip/SevenZipLister.h"
 
+class MyExtractItemCallback
+	: public SevenZip::ExtractItemCallback
+{
+public:
+	virtual void OnStart(const SevenZip::TString& archivePath, unsigned int itemCount) 
+	{ 
+
+	}
+
+	virtual void OnItem(SevenZip::ExtractItemInfo* itemInfo) 
+	{  
+
+	}
+
+	virtual void OnEnd() 
+	{
+
+	}
+};
+
 int main()
 {
 	HRESULT ret = S_OK;
@@ -26,7 +46,8 @@ int main()
 	{
 		SevenZip::SevenZipExtractor decompress;
 		decompress.SetArchivePath(L"test.7z");
-		if (ret != decompress.ExtractArchive(L"unzip", NULL, &pwd))
+		MyExtractItemCallback cb;
+		if (ret != decompress.ExtractArchive(L"unzip", NULL, &cb, &pwd, true))
 		{
 			wprintf_s(L"decompress 7z to dir failed\n");
 			return 1;
