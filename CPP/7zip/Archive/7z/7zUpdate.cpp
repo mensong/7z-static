@@ -1179,7 +1179,7 @@ protected:
 
   HRESULT OpenFile();
   HRESULT CloseFile();
-  HRESULT ProcessEmptyFiles();
+  HRESULT ProcessEmptyFilesOrDirectory();
 
 public:
   const CDbEx *_db;
@@ -1198,7 +1198,7 @@ HRESULT CRepackStreamBase::Init(UInt32 startIndex, const CBoolVector *extractSta
   _currentIndex = 0;
   _fileIsOpen = false;
   
-  return ProcessEmptyFiles();
+  return ProcessEmptyFilesOrDirectory();
 }
 
 HRESULT CRepackStreamBase::OpenFile()
@@ -1245,7 +1245,7 @@ HRESULT CRepackStreamBase::CloseFile()
   return k_My_HRESULT_CRC_ERROR;
 }
 
-HRESULT CRepackStreamBase::ProcessEmptyFiles()
+HRESULT CRepackStreamBase::ProcessEmptyFilesOrDirectory()
 {
   while (_currentIndex < _extractStatuses->Size() && _db->Files[_startIndex + _currentIndex].Size == 0)
   {
@@ -1295,7 +1295,7 @@ STDMETHODIMP CFolderOutStream2::Write(const void *data, UInt32 size, UInt32 *pro
       if (_rem == 0)
       {
         RINOK(CloseFile());
-        RINOK(ProcessEmptyFiles());
+        RINOK(ProcessEmptyFilesOrDirectory());
       }
       RINOK(result);
       if (cur == 0)
@@ -1303,7 +1303,7 @@ STDMETHODIMP CFolderOutStream2::Write(const void *data, UInt32 size, UInt32 *pro
       continue;
     }
 
-    RINOK(ProcessEmptyFiles());
+    RINOK(ProcessEmptyFilesOrDirectory());
     if (_currentIndex == _extractStatuses->Size())
     {
       // we don't support write cut here
@@ -1387,7 +1387,7 @@ STDMETHODIMP CFolderInStream2::Read(void *data, UInt32 size, UInt32 *processedSi
       if (_rem == 0)
       {
         RINOK(CloseFile());
-        RINOK(ProcessEmptyFiles());
+        RINOK(ProcessEmptyFilesOrDirectory());
       }
 
       RINOK(result);
@@ -1398,7 +1398,7 @@ STDMETHODIMP CFolderInStream2::Read(void *data, UInt32 size, UInt32 *processedSi
       continue;
     }
 
-    RINOK(ProcessEmptyFiles());
+    RINOK(ProcessEmptyFilesOrDirectory());
     if (_currentIndex == _extractStatuses->Size())
     {
       return S_OK;

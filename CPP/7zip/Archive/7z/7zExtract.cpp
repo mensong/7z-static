@@ -37,7 +37,7 @@ private:
   HRESULT OpenFile(bool isCorrupted = false);
   HRESULT CloseFile_and_SetResult(Int32 res);
   HRESULT CloseFile();
-  HRESULT ProcessEmptyFiles();
+  HRESULT ProcessEmptyFilesOrDirectory();
 
 public:
   MY_UNKNOWN_IMP1(ISequentialOutStream)
@@ -70,7 +70,7 @@ HRESULT CFolderOutStream::Init(unsigned startIndex, const UInt32 *indexes, unsig
   _fileIsOpen = false;
   ExtraWriteWasCut = false;
   
-  return ProcessEmptyFiles();
+  return ProcessEmptyFilesOrDirectory();
 }
 
 HRESULT CFolderOutStream::OpenFile(bool isCorrupted)
@@ -78,16 +78,16 @@ HRESULT CFolderOutStream::OpenFile(bool isCorrupted)
   const CFileItem &fi = _db->Files[_fileIndex];
   UInt32 nextFileIndex = (_indexes ? *_indexes : _fileIndex);
   Int32 askMode = (_fileIndex == nextFileIndex) ?
-        (TestMode ?
-        NExtract::NAskMode::kTest :
-        NExtract::NAskMode::kExtract) :
-      NExtract::NAskMode::kSkip;
+        (TestMode ? NExtract::NAskMode::kTest : NExtract::NAskMode::kExtract) :
+        NExtract::NAskMode::kSkip;
 
   if (isCorrupted
       && askMode == NExtract::NAskMode::kExtract
       && !_db->IsItemAnti(_fileIndex)
       && !fi.IsDir)
-    askMode = NExtract::NAskMode::kTest;
+  {
+      askMode = NExtract::NAskMode::kTest;
+  }
   
   CMyComPtr<ISequentialOutStream> realOutStream;
   RINOK(ExtractCallback->GetStream(_fileIndex, &realOutStream, askMode));
@@ -103,7 +103,9 @@ HRESULT CFolderOutStream::OpenFile(bool isCorrupted)
       && !realOutStream
       && !_db->IsItemAnti(_fileIndex)
       && !fi.IsDir)
-    askMode = NExtract::NAskMode::kSkip;
+  {
+      askMode = NExtract::NAskMode::kSkip;
+  }
   return ExtractCallback->PrepareOperation(askMode);
 }
 
@@ -132,7 +134,7 @@ HRESULT CFolderOutStream::CloseFile()
       NExtract::NOperationResult::kCRCError);
 }
 
-HRESULT CFolderOutStream::ProcessEmptyFiles()
+HRESULT CFolderOutStream::ProcessEmptyFilesOrDirectory()
 {
   while (_numFiles != 0 && _db->Files[_fileIndex].Size == 0)
   {
@@ -165,7 +167,7 @@ STDMETHODIMP CFolderOutStream::Write(const void *data, UInt32 size, UInt32 *proc
       if (_rem == 0)
       {
         RINOK(CloseFile());
-        RINOK(ProcessEmptyFiles());
+        RINOK(ProcessEmptyFilesOrDirectory());
       }
       RINOK(result);
       if (cur == 0)
@@ -173,7 +175,7 @@ STDMETHODIMP CFolderOutStream::Write(const void *data, UInt32 size, UInt32 *proc
       continue;
     }
   
-    RINOK(ProcessEmptyFiles());
+    RINOK(ProcessEmptyFilesOrDirectory());
     if (_numFiles == 0)
     {
       // we support partial extracting
