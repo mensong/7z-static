@@ -126,19 +126,21 @@ HRESULT SevenZipCompressor::FindAndCompressFiles(
     //            return S_OK;
     //    }
     //}
-	if (callback && callback->EnableFilesInfo())
-	{
-		if (!callback->OnFileItems(files))
-		{
-			return S_OK;
-		}
-	}
 	return CompressFilesToArchive(pathPrefix, files, callback, pSevenZipPassword);
 }
 
 HRESULT SevenZipCompressor::CompressFilesToArchive(const TString& pathPrefix, const std::vector< FilePathInfo >& filePaths,
 	ProgressCallback* progressCallback, SevenZipPassword *pSevenZipPassword)
 {
+	//信息回调
+	if (progressCallback && progressCallback->EnableFilesInfo())
+	{
+		if (!progressCallback->OnFileItems(filePaths))
+		{
+			return S_OK;
+		}
+	}
+
     CMyComPtr<IOutArchive> archiver = UsefulFunctions::GetArchiveWriter(m_compressionFormat);
 	SetCompressionProperties( archiver );
 
