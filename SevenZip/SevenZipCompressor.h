@@ -35,7 +35,7 @@ namespace SevenZip
 		CMyComPtr< IStream > OpenArchiveStream();
         HRESULT FindAndCompressFiles(const TString& directory, const TString& searchPattern,
 			const TString& pathPrefix, bool recursion, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword);
-		HRESULT CompressFilesToArchive(const TString& pathPrefix, const std::vector< intl::FilePathInfo >& filePaths, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword);
+		HRESULT CompressFilesToArchive(const TString& pathPrefix, const std::vector< FilePathInfo >& filePaths, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword);
         HRESULT SetCompressionProperties(IUnknown* outArchive);
 	};
 }

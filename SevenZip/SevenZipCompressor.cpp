@@ -81,7 +81,13 @@ CMyComPtr< IStream > SevenZipCompressor::OpenArchiveStream()
 	return fileStream;
 }
 
-HRESULT SevenZipCompressor::FindAndCompressFiles(const TString& directory, const TString& searchPattern, const TString& pathPrefix_, bool recursion, ProgressCallback* callback, SevenZipPassword *pSevenZipPassword)
+HRESULT SevenZipCompressor::FindAndCompressFiles(
+	const TString& directory, 
+	const TString& searchPattern, 
+	const TString& pathPrefix_, 
+	bool recursion, 
+	ProgressCallback* callback, 
+	SevenZipPassword *pSevenZipPassword)
 {
     //修正压缩包里面有空的顶级文件夹的的情况
     TString pathPrefix = pathPrefix_;
@@ -101,25 +107,32 @@ HRESULT SevenZipCompressor::FindAndCompressFiles(const TString& directory, const
 	m_outputPath = directory;
 
 	std::vector< FilePathInfo > files = FileSys::GetFilesInDirectory( directory, searchPattern, recursion );
-    if (callback)
-    {
-        if (callback->OnFileCount(files.size()))
-        {
-            std::vector<std::wstring> itemNames;
-            itemNames.reserve(files.size());
-            std::vector<unsigned __int64> itemSizes;
-            itemSizes.reserve(files.size());
+    //if (callback)
+    //{
+    //    if (callback->OnFileCount(files.size()))
+    //    {
+    //        std::vector<std::wstring> itemNames;
+    //        itemNames.reserve(files.size());
+    //        std::vector<unsigned __int64> itemSizes;
+    //        itemSizes.reserve(files.size());
 
-            for (size_t i = 0; i< files.size(); ++i)
-            {
-                FilePathInfo& a = files[i];
-                itemNames.push_back(a.FilePath);
-                itemSizes.push_back(a.Size);
-            }
-            if (!callback->OnFileItems(itemNames, itemSizes))
-                return S_OK;
-        }
-    }
+    //        for (size_t i = 0; i< files.size(); ++i)
+    //        {
+    //            FilePathInfo& a = files[i];
+    //            itemNames.push_back(a.FilePath);
+    //            itemSizes.push_back(a.Size);
+    //        }
+    //        if (!callback->OnFileItems(itemNames, itemSizes))
+    //            return S_OK;
+    //    }
+    //}
+	if (callback && callback->EnableFilesInfo())
+	{
+		if (!callback->OnFileItems(files))
+		{
+			return S_OK;
+		}
+	}
 	return CompressFilesToArchive(pathPrefix, files, callback, pSevenZipPassword);
 }
 

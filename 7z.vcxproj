@@ -411,6 +411,7 @@
     <ClCompile Include="SevenZip\FileStream.cpp" />
     <ClCompile Include="SevenZip\FileStreamMemory.cpp" />
     <ClCompile Include="SevenZip\FileSys.cpp" />
+    <ClCompile Include="SevenZip\GetArchiveItemInfoHelper.cpp" />
     <ClCompile Include="SevenZip\GUIDs.cpp" />
     <ClCompile Include="SevenZip\InStreamWrapper.cpp" />
     <ClCompile Include="SevenZip\OutStreamWrapper.cpp" />
@@ -648,12 +649,11 @@
     <ClInclude Include="SevenZip\CompressionLevel.h" />
     <ClInclude Include="SevenZip\Enum.h" />
     <ClInclude Include="SevenZip\ErpExcept.h" />
-    <ClInclude Include="SevenZip\ExtractItemCallback.h" />
-    <ClInclude Include="SevenZip\ExtractItemInfo.h" />
     <ClInclude Include="SevenZip\FileInfo.h" />
     <ClInclude Include="SevenZip\FileStream.h" />
     <ClInclude Include="SevenZip\FileStreamMemory.h" />
     <ClInclude Include="SevenZip\FileSys.h" />
+    <ClInclude Include="SevenZip\GetArchiveItemInfoHelper.h" />
     <ClInclude Include="SevenZip\GUIDs.h" />
     <ClInclude Include="SevenZip\InStreamWrapper.h" />
     <ClInclude Include="SevenZip\ListCallback.h" />

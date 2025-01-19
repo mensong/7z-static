@@ -6,7 +6,7 @@
 #include "InStreamWrapper.h"
 #include "PropVariant2.h"
 #include "UsefulFunctions.h"
-
+#include "GetArchiveItemInfoHelper.h"
 
 namespace SevenZip
 {
@@ -26,10 +26,8 @@ namespace SevenZip
 
 	HRESULT SevenZipExtractor::ExtractArchive(
         const TString& destDirectory, 
-        ProgressCallback* callback, 
-        ExtractItemCallback* itemCallback,
-        SevenZipPassword *pSevenZipPassword,
-        bool testMode)
+        ProgressCallback* callback,
+        SevenZipPassword *pSevenZipPassword)
     {
         DetectCompressionFormat();
         CMyComPtr< IStream > fileStream = FileSys::OpenFileToRead(m_archivePath);
@@ -47,15 +45,13 @@ namespace SevenZip
             return ERROR_OPEN_FAILED;	//Could not open archive
         }
 
-		return ExtractArchive(fileStream, destDirectory, callback, itemCallback, testMode, pSevenZipPassword);
+		return ExtractArchive(fileStream, destDirectory, callback, pSevenZipPassword);
     }
 
 	HRESULT SevenZipExtractor::ExtractArchive(
         const CMyComPtr< IStream >& archiveStream, 
         const TString& destDirectory, 
-        ProgressCallback* callback, 
-        ExtractItemCallback* itemCallback,
-        bool testMode,
+        ProgressCallback* callback,
         SevenZipPassword *pSevenZipPassword)
     {
         CMyComPtr< IInArchive > archive = UsefulFunctions::GetArchiveReader(m_compressionFormat);
@@ -82,72 +78,91 @@ namespace SevenZip
             return hr;	//Open archive error
         }
 
-        if (callback)
+     //   if (callback)
+     //   {
+     //       UInt32 mynumofitems = 0;
+     //       hr = archive->GetNumberOfItems(&mynumofitems);
+     //       if (callback->OnFileCount(mynumofitems))
+     //       {
+     //           size_t numberofitems = size_t(mynumofitems);
+     //           
+     //           std::vector<std::wstring> itemnames;
+     //           itemnames.reserve(numberofitems);
+
+     //           std::vector<unsigned __int64> origsizes;
+     //           origsizes.reserve(numberofitems);
+
+     //           bool succ = true;
+     //           for (UInt32 i = 0; i < numberofitems; ++i)
+     //           {
+     //               // Get uncompressed size of file
+     //               CPropVariant prop;
+     //               hr = archive->GetProperty(i, kpidSize, &prop);
+     //               if (hr != S_OK)
+     //               {
+     //                   succ = false;
+     //                   break;
+     //               }
+
+     //               unsigned __int64 size = prop.uhVal.QuadPart;
+     //               //origsizes.emplace_back(size);
+					//origsizes.push_back(size);
+
+     //               // Get name of file
+     //               hr = archive->GetProperty(i, kpidPath, &prop);
+     //               if (hr != S_OK)
+     //               {
+     //                   succ = false;
+     //                   break;
+     //               }
+     //               //itemnames.emplace_back(prop.vt == VT_BSTR?prop.bstrVal:L"");
+					//itemnames.push_back(prop.vt == VT_BSTR?prop.bstrVal:L"");
+     //           }
+
+     //           if (!succ)
+     //           {
+     //               archive->Close();
+     //               return E_FAIL;
+     //               
+     //           }
+
+     //           if (!callback->OnFileItems(itemnames, origsizes))
+     //           {
+     //               //只为了取得文件信息,所以直接返回.
+     //               archive->Close();
+     //               return S_OK;
+     //           }
+     //       }
+     //   }
+
+        if (callback && callback->EnableFilesInfo())
         {
             UInt32 mynumofitems = 0;
-            hr = archive->GetNumberOfItems(&mynumofitems);
-            if (callback->OnFileCount(mynumofitems))
+			hr = archive->GetNumberOfItems(&mynumofitems);
+            std::vector<FilePathInfo> fileInfos;
+            fileInfos.reserve(mynumofitems);
+            for (UInt32 i = 0; i < mynumofitems; ++i)
             {
-                size_t numberofitems = size_t(mynumofitems);
-                
-                std::vector<std::wstring> itemnames;
-                itemnames.reserve(numberofitems);
-
-                std::vector<unsigned __int64> origsizes;
-                origsizes.reserve(numberofitems);
-
-                bool succ = true;
-                for (UInt32 i = 0; i < numberofitems; ++i)
-                {
-                    // Get uncompressed size of file
-                    CPropVariant prop;
-                    hr = archive->GetProperty(i, kpidSize, &prop);
-                    if (hr != S_OK)
-                    {
-                        succ = false;
-                        break;
-                    }
-
-                    unsigned __int64 size = prop.uhVal.QuadPart;
-                    //origsizes.emplace_back(size);
-					origsizes.push_back(size);
-
-                    // Get name of file
-                    hr = archive->GetProperty(i, kpidPath, &prop);
-                    if (hr != S_OK)
-                    {
-                        succ = false;
-                        break;
-                    }
-                    //itemnames.emplace_back(prop.vt == VT_BSTR?prop.bstrVal:L"");
-					itemnames.push_back(prop.vt == VT_BSTR?prop.bstrVal:L"");
-                }
-
-                if (!succ)
-                {
-                    archive->Close();
-                    return E_FAIL;
-                    
-                }
-
-                if (!callback->OnFileItems(itemnames, origsizes))
-                {
-                    //只为了取得文件信息,所以直接返回.
-                    archive->Close();
-                    return S_OK;
-                }
+                FilePathInfo fileInfo;
+                GetArchiveItemInfoHelper::GetPropertyFilePath(archive, i, fileInfo.FilePath);
+                GetArchiveItemInfoHelper::GetPropertyAttributes(archive, i, fileInfo.Attributes);
+                GetArchiveItemInfoHelper::GetPropertyIsDir(archive, i, fileInfo.IsDirectory);
+                GetArchiveItemInfoHelper::GetPropertyModifiedTime(archive, i, fileInfo.LastWriteTime);
+                GetArchiveItemInfoHelper::GetPropertyAccessedTime(archive, i, fileInfo.LastAccessTime);
+                GetArchiveItemInfoHelper::GetPropertyCreatedTime(archive, i, fileInfo.CreationTime);
+                GetArchiveItemInfoHelper::GetPropertySize(archive, i, fileInfo.Size);
+                fileInfos.push_back(fileInfo);
             }
-        }
-
-        if (itemCallback)
-        {
-            UInt32 mynumofitems = 0;
-            hr = archive->GetNumberOfItems(&mynumofitems);
-            itemCallback->OnStart(m_archivePath, mynumofitems);
+            if (!callback->OnFileItems(fileInfos))
+            {
+				//只为了取得文件信息,所以直接返回.
+				archive->Close();
+				return S_OK;
+			}
         }
 
         CMyComPtr< ArchiveExtractCallback > extractCallback = new ArchiveExtractCallback(
-            archive, destDirectory, m_overwriteMode, callback, itemCallback, testMode);
+            archive, destDirectory, m_overwriteMode, callback);
 		if (NULL != pSevenZipPassword)
 		{
 			extractCallback->PasswordIsDefined = pSevenZipPassword->PasswordIsDefined;
@@ -166,14 +181,12 @@ namespace SevenZip
                 ::LocalFree(msgBuf);
             }
         }
+
         if (callback)
         {
             callback->OnEnd(m_archivePath);
         }
-        if (itemCallback)
-        {
-            itemCallback->OnEnd();
-        }
+
         archive->Close();
         return hr;
     }

@@ -221,60 +221,60 @@ namespace SevenZip
             return hr;	//Open archive error
         }
 
-        if (callback)
-        {
-            UInt32 mynumofitems = 0;
-            hr = archive->GetNumberOfItems(&mynumofitems);
-            if (callback->OnFileCount(mynumofitems))
-            {
-                size_t numberofitems = size_t(mynumofitems);
-                
-                std::vector<std::wstring> itemnames;
-                itemnames.reserve(numberofitems);
+        //if (callback)
+        //{
+        //    UInt32 mynumofitems = 0;
+        //    hr = archive->GetNumberOfItems(&mynumofitems);
+        //    if (callback->OnFileCount(mynumofitems))
+        //    {
+        //        size_t numberofitems = size_t(mynumofitems);
+        //        
+        //        std::vector<std::wstring> itemnames;
+        //        itemnames.reserve(numberofitems);
 
-                std::vector<unsigned __int64> origsizes;
-                origsizes.reserve(numberofitems);
+        //        std::vector<unsigned __int64> origsizes;
+        //        origsizes.reserve(numberofitems);
 
-                bool succ = true;
-                for (UInt32 i = 0; i < numberofitems; ++i)
-                {
-                    // Get uncompressed size of file
-                    CPropVariant prop;
-                    hr = archive->GetProperty(i, kpidSize, &prop);
-                    if (hr != S_OK)
-                    {
-                        succ = false;
-                        break;
-                    }
+        //        bool succ = true;
+        //        for (UInt32 i = 0; i < numberofitems; ++i)
+        //        {
+        //            // Get uncompressed size of file
+        //            CPropVariant prop;
+        //            hr = archive->GetProperty(i, kpidSize, &prop);
+        //            if (hr != S_OK)
+        //            {
+        //                succ = false;
+        //                break;
+        //            }
 
-                    unsigned __int64 size = prop.uhVal.QuadPart;
-                    origsizes.push_back(size);
+        //            unsigned __int64 size = prop.uhVal.QuadPart;
+        //            origsizes.push_back(size);
 
-                    // Get name of file
-                    hr = archive->GetProperty(i, kpidPath, &prop);
-                    if (hr != S_OK)
-                    {
-                        succ = false;
-                        break;
-                    }
-                    itemnames.push_back(prop.vt == VT_BSTR?prop.bstrVal:L"");
-                }
+        //            // Get name of file
+        //            hr = archive->GetProperty(i, kpidPath, &prop);
+        //            if (hr != S_OK)
+        //            {
+        //                succ = false;
+        //                break;
+        //            }
+        //            itemnames.push_back(prop.vt == VT_BSTR?prop.bstrVal:L"");
+        //        }
 
-                if (!succ)
-                {
-                    archive->Close();
-                    return E_FAIL;
-                    
-                }
+        //        if (!succ)
+        //        {
+        //            archive->Close();
+        //            return E_FAIL;
+        //            
+        //        }
 
-                if (!callback->OnFileItems(itemnames, origsizes))
-                {
-                    //只为了取得文件信息,所以直接返回.
-                    archive->Close();
-                    return S_OK;
-                }
-            }
-        }
+        //        if (!callback->OnFileItems(itemnames, origsizes))
+        //        {
+        //            //只为了取得文件信息,所以直接返回.
+        //            archive->Close();
+        //            return S_OK;
+        //        }
+        //    }
+        //}
 
 		CMyComPtr< ArchiveExtractCallbackMemory > extractCallback = new ArchiveExtractCallbackMemory(archive, callback,fileStreams);
 		if (NULL != pSevenZipPassword)

@@ -4,6 +4,7 @@
 #include "OutStreamWrapper.h"
 #include <comdef.h>
 #include "../CPP/Common/MyCom.h"
+#include "GetArchiveItemInfoHelper.h"
 
 namespace SevenZip
 {
@@ -17,17 +18,13 @@ namespace SevenZip
             const CMyComPtr< IInArchive >& archiveHandler,
             const TString& directory,
             OverwriteModeEnum mode,
-            ProgressCallback* callback,
-            ExtractItemCallback* itemCallback,
-            bool testMode)
-            : ExtractItemInfo(directory)
+            ProgressCallback* callback)
+            : m_directory(directory)
             , m_refCount(0)
             , m_archiveHandler(archiveHandler)
             , m_callback(callback)
-            , m_itemCallback(itemCallback)
             , m_overwriteMode(mode)
 			, PasswordIsDefined(false)
-            , m_testMode(testMode)
         {
             if (*m_directory.rbegin() != L'\\' && *m_directory.rbegin() != L'/')
 				m_directory += L'\\';
@@ -161,14 +158,12 @@ namespace SevenZip
 
             m_index = index;
             // TODO: m_directory could be a relative path as "..\"
-            m_absPath = FileSys::AppendPath(m_directory, m_relPath);
+            m_absPath = FileSys::AppendPath(m_directory, FilePath);
 
-            if (m_testMode)
-                return S_OK;
             if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
                 return S_OK;
 
-            if (m_isDir)
+            if (IsDirectory)
             {
                 FileSys::CreateDirectoryTree(m_absPath);
                 *outStream = NULL;
@@ -177,13 +172,13 @@ namespace SevenZip
 
             if (m_callback)
             {
-                if (!m_callback->OnFileBegin(m_directory, m_relPath))
+                if (!m_callback->OnFileBegin(m_directory, FilePath))
                 {
                     //stop decompress
                     return E_FAIL;
                 }
                 //Skip file
-                if (m_relPath.empty())
+                if (FilePath.empty())
                 {
                     *outStream = NULL;
                     return S_OK;
@@ -269,8 +264,6 @@ namespace SevenZip
 
         STDMETHODIMP ArchiveExtractCallback::PrepareOperation(Int32 /*askExtractMode*/)
         {
-            if (m_itemCallback)
-                m_itemCallback->OnItem(this);
             return S_OK;
         }
 
@@ -298,23 +291,23 @@ namespace SevenZip
                 if (fileHandle != INVALID_HANDLE_VALUE)
                 {
                     SetFileTime(fileHandle,
-                        m_hasCreatedTime ? &m_createdTime : NULL,
-                        m_hasAccessedTime ? &m_accessedTime : NULL,
-                        m_hasModifiedTime ? &m_modifiedTime : NULL);
+                        m_hasCreatedTime ? &CreationTime : NULL,
+                        m_hasAccessedTime ? &LastAccessTime : NULL,
+                        m_hasModifiedTime ? &LastWriteTime : NULL);
                     CloseHandle(fileHandle);
                 }
             }
 
             if (m_hasAttrib)
             {
-                SetFileAttributes(m_absPath.c_str(), m_attrib);
+                SetFileAttributes(m_absPath.c_str(), Attributes);
             }
 
             if (m_callback)
             {
-                if(!m_callback->OnFileDone(m_absPath, m_newFileSize))
+                if(!m_callback->OnFileDone(m_absPath, Size))
                     return E_FAIL;
-                m_callback->OnProgress(m_absPath, m_newFileSize);
+                m_callback->OnProgress(m_absPath, Size);
             }
             return S_OK;
         }
@@ -334,84 +327,103 @@ namespace SevenZip
 
         void ArchiveExtractCallback::GetPropertyFilePath(UInt32 index)
         {
-            CPropVariant prop;
-            HRESULT hr = m_archiveHandler->GetProperty(index, kpidPath, &prop);
-            if (hr != S_OK)
-            {
-                _com_issue_error(hr);
-            }
+//            CPropVariant prop;
+//            HRESULT hr = m_archiveHandler->GetProperty(index, kpidPath, &prop);
+//            if (hr != S_OK)
+//            {
+//                _com_issue_error(hr);
+//            }
+//
+//            if ( prop.vt == VT_EMPTY )
+//            {
+//                FilePath = EmptyFileAlias;
+//            }
+//            else if (prop.vt != VT_BSTR)
+//            {
+//                _com_issue_error(E_FAIL);
+//            }
+//            else
+//            {
+//                _bstr_t bstr = prop.bstrVal;
+//#ifdef _UNICODE
+//                FilePath = bstr;
+//#else
+//                char relPath[MAX_PATH];
+//                int size = WideCharToMultiByte(CP_UTF8, 0, bstr, bstr.length(), relPath, MAX_PATH, NULL, NULL);
+//                FilePath.assign(relPath, size);
+//#endif
+//            }
 
-            if ( prop.vt == VT_EMPTY )
-            {
-                m_relPath = EmptyFileAlias;
-            }
-            else if (prop.vt != VT_BSTR)
-            {
+            if (!GetArchiveItemInfoHelper::GetPropertyFilePath(m_archiveHandler, index, FilePath))
                 _com_issue_error(E_FAIL);
-            }
-            else
-            {
-                _bstr_t bstr = prop.bstrVal;
-#ifdef _UNICODE
-                m_relPath = bstr;
-#else
-                char relPath[MAX_PATH];
-                int size = WideCharToMultiByte(CP_UTF8, 0, bstr, bstr.length(), relPath, MAX_PATH, NULL, NULL);
-                m_relPath.assign(relPath, size);
-#endif
-            }
         }
 
         void ArchiveExtractCallback::GetPropertyAttributes(UInt32 index)
         {
-            CPropVariant prop;
-            HRESULT hr = m_archiveHandler->GetProperty(index, kpidAttrib, &prop);
-            if (hr != S_OK)
-            {
-                _com_issue_error(hr);
-            }
+            //CPropVariant prop;
+            //HRESULT hr = m_archiveHandler->GetProperty(index, kpidAttrib, &prop);
+            //if (hr != S_OK)
+            //{
+            //    _com_issue_error(hr);
+            //}
 
-            if (prop.vt == VT_EMPTY)
-            {
-                m_attrib = 0;
-                m_hasAttrib = false;
-            }
-            else if (prop.vt != VT_UI4)
-            {
+            //if (prop.vt == VT_EMPTY)
+            //{
+            //    //m_attrib = 0;
+            //    //m_hasAttrib = false;
+            //    Attributes = 0;
+            //}
+            //else if (prop.vt != VT_UI4)
+            //{
+            //    _com_issue_error(E_FAIL);
+            //}
+            //else
+            //{
+            //    //m_attrib = prop.ulVal;
+            //    //m_hasAttrib = true;
+            //    Attributes = prop.ulVal;
+            //}
+
+            int res = GetArchiveItemInfoHelper::GetPropertyAttributes(m_archiveHandler, index, Attributes);
+            if (res < 0)
                 _com_issue_error(E_FAIL);
-            }
             else
             {
-                m_attrib = prop.ulVal;
-                m_hasAttrib = true;
+                m_hasAttrib = (res == 0);
             }
         }
 
         void ArchiveExtractCallback::GetPropertyIsDir(UInt32 index)
         {
-            CPropVariant prop;
-            HRESULT hr = m_archiveHandler->GetProperty(index, kpidIsDir, &prop);
-            if (hr != S_OK)
-            {
-                _com_issue_error(hr);
-            }
+            //CPropVariant prop;
+            //HRESULT hr = m_archiveHandler->GetProperty(index, kpidIsDir, &prop);
+            //if (hr != S_OK)
+            //{
+            //    _com_issue_error(hr);
+            //}
 
-            if (prop.vt == VT_EMPTY)
-            {
-                m_isDir = false;
-            }
-            else if (prop.vt != VT_BOOL)
-            {
+            //if (prop.vt == VT_EMPTY)
+            //{
+            //    IsDirectory = false;
+            //}
+            //else if (prop.vt != VT_BOOL)
+            //{
+            //    _com_issue_error(E_FAIL);
+            //}
+            //else
+            //{
+            //    //m_isDir = prop.boolVal != VARIANT_FALSE;
+            //    IsDirectory = prop.boolVal != VARIANT_FALSE;
+            //}
+
+            int res = GetArchiveItemInfoHelper::GetPropertyIsDir(m_archiveHandler, index, IsDirectory);
+            if (res < 0)
                 _com_issue_error(E_FAIL);
-            }
-            else
-            {
-                m_isDir = prop.boolVal != VARIANT_FALSE;
-            }
         }
 
         void ArchiveExtractCallback::GetPropertyModifiedTime(UInt32 index)
         {
+#if 0
             CPropVariant prop;
             HRESULT hr = m_archiveHandler->GetProperty(index, kpidMTime, &prop);
             if (hr != S_OK)
@@ -422,6 +434,7 @@ namespace SevenZip
             if (prop.vt == VT_EMPTY)
             {
                 m_hasModifiedTime = false;
+                LastWriteTime = { 0 };
             }
             else if (prop.vt != VT_FILETIME)
             {
@@ -429,12 +442,21 @@ namespace SevenZip
             }
             else
             {
-                m_modifiedTime = prop.filetime;
+                //m_modifiedTime = prop.filetime;
                 m_hasModifiedTime = true;
+                LastWriteTime = prop.filetime;
             }
+#else
+            int res = GetArchiveItemInfoHelper::GetPropertyModifiedTime(m_archiveHandler, index, LastWriteTime);
+            if (res < 0)
+                _com_issue_error(E_FAIL);
+            else
+                m_hasModifiedTime = (res == 0);
+#endif
         }
         void ArchiveExtractCallback::GetPropertyAccessedTime(UInt32 index)
         {
+#if 0
             CPropVariant prop;
             HRESULT hr = m_archiveHandler->GetProperty(index, kpidATime, &prop);
             if (hr != S_OK)
@@ -445,6 +467,7 @@ namespace SevenZip
             if (prop.vt == VT_EMPTY)
             {
                 m_hasAccessedTime = false;
+				LastAccessTime = { 0 };
             }
             else if (prop.vt != VT_FILETIME)
             {
@@ -452,13 +475,22 @@ namespace SevenZip
             }
             else
             {
-                m_accessedTime = prop.filetime;
+                //m_accessedTime = prop.filetime;
                 m_hasAccessedTime = true;
+                LastAccessTime = prop.filetime;
             }
+#else
+            int res = GetArchiveItemInfoHelper::GetPropertyAccessedTime(m_archiveHandler, index, LastAccessTime);
+            if (res < 0)
+                _com_issue_error(E_FAIL);
+            else
+                m_hasAccessedTime = (res == 0);
+#endif
         }
 
         void ArchiveExtractCallback::GetPropertyCreatedTime(UInt32 index)
         {
+#if 0
             CPropVariant prop;
             HRESULT hr = m_archiveHandler->GetProperty(index, kpidCTime, &prop);
             if (hr != S_OK)
@@ -469,6 +501,7 @@ namespace SevenZip
             if (prop.vt == VT_EMPTY)
             {
                 m_hasCreatedTime = false;
+                CreationTime = { 0 };
             }
             else if (prop.vt != VT_FILETIME)
             {
@@ -476,42 +509,59 @@ namespace SevenZip
             }
             else
             {
-                m_createdTime = prop.filetime;
+                //m_createdTime = prop.filetime;
                 m_hasCreatedTime = true;
+                CreationTime = prop.filetime;
             }
+#else
+            int res = GetArchiveItemInfoHelper::GetPropertyCreatedTime(m_archiveHandler, index, CreationTime);
+            if (res < 0)
+                _com_issue_error(E_FAIL);
+            else
+                m_hasCreatedTime = (res == 0);
+#endif
         }
 
         void ArchiveExtractCallback::GetPropertySize(UInt32 index)
         {
-            CPropVariant prop;
-            HRESULT hr = m_archiveHandler->GetProperty(index, kpidSize, &prop);
-            if (hr != S_OK)
-            {
-                _com_issue_error(hr);
-            }
+            //CPropVariant prop;
+            //HRESULT hr = m_archiveHandler->GetProperty(index, kpidSize, &prop);
+            //if (hr != S_OK)
+            //{
+            //    _com_issue_error(hr);
+            //}
 
-            switch (prop.vt)
-            {
-            case VT_EMPTY:
-                m_hasNewFileSize = false;
-                return;
-            case VT_UI1:
-                m_newFileSize = prop.bVal;
-                break;
-            case VT_UI2:
-                m_newFileSize = prop.uiVal;
-                break;
-            case VT_UI4:
-                m_newFileSize = prop.ulVal;
-                break;
-            case VT_UI8:
-                m_newFileSize = (UInt64)prop.uhVal.QuadPart;
-                break;
-            default:
+            //switch (prop.vt)
+            //{
+            //case VT_EMPTY:
+            //    //m_hasNewFileSize = false;
+            //    Size = 0;
+            //    return;
+            //case VT_UI1:
+            //    //m_newFileSize = prop.bVal;
+            //    Size = prop.bVal;
+            //    break;
+            //case VT_UI2:
+            //    //m_newFileSize = prop.uiVal;
+            //    Size = prop.uiVal;
+            //    break;
+            //case VT_UI4:
+            //    //m_newFileSize = prop.ulVal;
+            //    Size = prop.ulVal;
+            //    break;
+            //case VT_UI8:
+            //    //m_newFileSize = (UInt64)prop.uhVal.QuadPart;
+            //    Size = (UInt64)prop.uhVal.QuadPart;
+            //    break;
+            //default:
+            //    _com_issue_error(E_FAIL);
+            //}
+
+            ////m_hasNewFileSize = true;
+
+            int res = GetArchiveItemInfoHelper::GetPropertySize(m_archiveHandler, index, Size);
+            if (res < 0)
                 _com_issue_error(E_FAIL);
-            }
-
-            m_hasNewFileSize = true;
         }
 
 

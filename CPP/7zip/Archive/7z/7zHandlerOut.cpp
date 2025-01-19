@@ -702,9 +702,17 @@ void COutHandler::InitProps()
   _encryptHeaders = false;
   // _useParents = false;
   
+#if 0
+  //不写时间
   Write_CTime.Init();
   Write_ATime.Init();
   Write_MTime.Init();
+#else
+  //写时间
+  Write_CTime.SetTrueTrue();
+  Write_ATime.SetTrueTrue();
+  Write_MTime.SetTrueTrue();
+#endif
 
   _useMultiThreadMixer = true;
 

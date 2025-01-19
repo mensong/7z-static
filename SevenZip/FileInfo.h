@@ -4,10 +4,19 @@
 
 namespace SevenZip
 {
-namespace intl
-{
-	struct FileInfo
+	class FileInfo
 	{
+	public:
+		FileInfo()
+		{
+			LastWriteTime = { 0 };
+			CreationTime = { 0 };
+			LastAccessTime = { 0 };
+			Size = 0;
+			Attributes = 0;
+			IsDirectory = false;
+		}
+
 		TString		FileName;
 		FILETIME	LastWriteTime;
 		FILETIME	CreationTime;
@@ -17,9 +26,9 @@ namespace intl
 		bool		IsDirectory;
 	};
 
-	struct FilePathInfo : public FileInfo
+	class FilePathInfo : public FileInfo
 	{
+	public:
 		TString		FilePath;
 	};
-}
 }

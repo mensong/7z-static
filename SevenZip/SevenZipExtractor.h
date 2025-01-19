@@ -3,7 +3,6 @@
 #include "CompressionFormat.h"
 #include "ProgressCallback.h"
 #include "SevenZipPwd.h"
-#include "ExtractItemCallback.h"
 
 namespace SevenZip
 {
@@ -16,10 +15,8 @@ namespace SevenZip
 
 		virtual HRESULT ExtractArchive(
             const TString& directory, 
-            ProgressCallback* callback, 
-            ExtractItemCallback* itemCallback,
-            SevenZipPassword *pSevenZipPassword=NULL,
-            bool testMode = false);
+            ProgressCallback* callback,
+            SevenZipPassword *pSevenZipPassword=NULL);
         const TString& GetErrorString();
 
         void SetOverwriteMode(const OverwriteModeEnum& mode);
@@ -30,9 +27,7 @@ namespace SevenZip
 		HRESULT ExtractArchive(
             const CMyComPtr< IStream >& archiveStream, 
             const TString& directory, 
-            ProgressCallback* callback, 
-            ExtractItemCallback* itemCallback, 
-            bool testMode,
+            ProgressCallback* callback,
             SevenZipPassword *pSevenZipPassword);
 
         OverwriteModeEnum m_overwriteMode;

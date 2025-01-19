@@ -630,6 +630,9 @@
     <ClCompile Include="CPP\7zip\Compress\ZlibEncoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SevenZip\GetArchiveItemInfoHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPP\7zip\Crypto\7zAes.h">
@@ -1358,10 +1361,7 @@
     <ClInclude Include="CPP\7zip\Compress\ZlibEncoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SevenZip\ExtractItemCallback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SevenZip\ExtractItemInfo.h">
+    <ClInclude Include="SevenZip\GetArchiveItemInfoHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
