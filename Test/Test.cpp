@@ -34,7 +34,7 @@ int main()
 		compress.SetArchivePath(L"test.7z");
 		compress.SetEncryptFileName(true);
 		//if (ret != compress.CompressFiles(L"tmp", L"*", & cb, true, &pwd))
-		if (ret != compress.CompressDirectory(L"tmp", L"*.log", &cb, true, &pwd))
+		if (ret != compress.CompressDirectory(L"tmp", L"*", &cb, true, &pwd))
 		{
 			wprintf_s(L"compress dir to 7z failed\n");
 			return 1;
