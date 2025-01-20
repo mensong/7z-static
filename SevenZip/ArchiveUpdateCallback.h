@@ -28,7 +28,7 @@ namespace intl
 
 		long m_refCount;
 		TString m_dirPrefix;
-		TString m_outputPath;
+		TString m_srcPath;
 		const std::vector< FilePathInfo >& m_filePaths;
 		ProgressCallback* m_callback;
 

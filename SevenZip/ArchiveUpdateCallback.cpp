@@ -10,12 +10,13 @@ namespace SevenZip
 namespace intl
 {
 
-ArchiveUpdateCallback::ArchiveUpdateCallback( const TString& dirPrefix, const std::vector< FilePathInfo >& filePaths, const TString& outputFilePath, ProgressCallback* callback)
+ArchiveUpdateCallback::ArchiveUpdateCallback( 
+	const TString& dirPrefix, const std::vector< FilePathInfo >& filePaths, const TString& srcPath, ProgressCallback* callback)
 	: m_refCount( 0 )
 	, m_dirPrefix( dirPrefix )
 	, m_filePaths( filePaths )
 	, m_callback(callback)
-	, m_outputPath(outputFilePath)
+	, m_srcPath(srcPath)
 	, PasswordIsDefined(false)
 	, AskPassword(false)
 {
@@ -85,7 +86,7 @@ STDMETHODIMP ArchiveUpdateCallback::SetTotal( UInt64 size )
     wprintf_s(L"SetTotal:%llu\n", size);
 	if (m_callback)
 	{
-		m_callback->OnStart(m_outputPath, size);
+		m_callback->OnStart(m_srcPath, size);
 	}
 	return S_OK;
 }
@@ -95,7 +96,7 @@ STDMETHODIMP ArchiveUpdateCallback::SetCompleted( const UInt64* completeValue )
     wprintf_s(L"SetCompleted:%llu\n", *completeValue);
 	if (m_callback)
 	{
-		m_callback->OnProgress(m_outputPath, *completeValue);
+		m_callback->OnProgress(m_srcPath, *completeValue);
 	}
 	return S_OK;
 }

@@ -22,36 +22,26 @@ SevenZipCompressor::SevenZipCompressor()
 SevenZipCompressor::~SevenZipCompressor()
 {
 }
-const TString SearchPatternAllFiles = _T( "*" );
 
-HRESULT SevenZipCompressor::CompressDirectory(const TString& directory, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
+HRESULT SevenZipCompressor::CompressDirectory(
+	const TString& directory, const TString& searchFilter, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
 {	
 	return FindAndCompressFiles( 
 				directory, 
-				SearchPatternAllFiles, 
+				searchFilter,
 				FileSys::GetPath( directory ), 
 				includeSubdirs,
 				callback,
 				pSevenZipPassword);
 }
 
-HRESULT SevenZipCompressor::CompressFiles(const TString& directory, const TString& searchFilter, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
+HRESULT SevenZipCompressor::CompressFiles(
+	const TString& directory, const TString& searchFilter, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
 {
 	return FindAndCompressFiles( 
 				directory, 
 				searchFilter, 
 				directory, 
-				includeSubdirs,
-				callback,
-				pSevenZipPassword);
-}
-
-HRESULT SevenZipCompressor::CompressAllFiles(const TString& directory, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
-{
-	return FindAndCompressFiles( 
-				directory, 
-				SearchPatternAllFiles, 
-				directory,
 				includeSubdirs,
 				callback,
 				pSevenZipPassword);
@@ -66,7 +56,7 @@ HRESULT SevenZipCompressor::CompressFile(const TString& filePath, ProgressCallba
         return ERROR_EMPTY;
 	}
 
-	m_outputPath = filePath;
+	m_srcPath = filePath;
 
 	return CompressFilesToArchive(TString(), files, callback, pSevenZipPassword);
 }
@@ -91,7 +81,7 @@ HRESULT SevenZipCompressor::FindAndCompressFiles(
 {
     //修正压缩包里面有空的顶级文件夹的的情况
     TString pathPrefix = pathPrefix_;
-    if (*pathPrefix.rbegin() != L'/'&&*pathPrefix.rbegin() != L'\\')
+    if (!pathPrefix.empty() && *pathPrefix.rbegin() != L'/'&&*pathPrefix.rbegin() != L'\\')
         pathPrefix += L'\\';
 
 	if ( !FileSys::DirectoryExists( directory ) )
@@ -104,7 +94,7 @@ HRESULT SevenZipCompressor::FindAndCompressFiles(
     //    return ERROR_EMPTY;	//Directory \"%s\" is empty" ), directory.c_str()
 	//}
 
-	m_outputPath = directory;
+	m_srcPath = directory;
 
 	std::vector< FilePathInfo > files = FileSys::GetFilesInDirectory( directory, searchPattern, recursion );
     //if (callback)
@@ -144,11 +134,11 @@ HRESULT SevenZipCompressor::CompressFilesToArchive(const TString& pathPrefix, co
     CMyComPtr<IOutArchive> archiver = UsefulFunctions::GetArchiveWriter(m_compressionFormat);
 	SetCompressionProperties( archiver );
 
-	//Set full outputFilePath including ending
-	m_outputPath += UsefulFunctions::EndingFromCompressionFormat(m_compressionFormat);
+	////Set full outputFilePath including ending
+	//m_srcPath += UsefulFunctions::EndingFromCompressionFormat(m_compressionFormat);
 
     CMyComPtr<OutStreamWrapper> outFile = new OutStreamWrapper(OpenArchiveStream());
-    CMyComPtr<ArchiveUpdateCallback> updateCallback = new ArchiveUpdateCallback(pathPrefix, filePaths, m_outputPath, progressCallback);
+    CMyComPtr<ArchiveUpdateCallback> updateCallback = new ArchiveUpdateCallback(pathPrefix, filePaths, m_srcPath, progressCallback);
 	
 	if (pSevenZipPassword)
 	{
@@ -161,7 +151,7 @@ HRESULT SevenZipCompressor::CompressFilesToArchive(const TString& pathPrefix, co
 
 	if (progressCallback)
 	{
-		progressCallback->OnEnd(m_outputPath);	//Todo: give full path support
+		progressCallback->OnEnd(m_srcPath);	//Todo: give full path support
 	}
 
     return hr;

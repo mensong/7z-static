@@ -38,6 +38,13 @@ namespace intl
             outFilePath.assign(relPath, size);
 #endif
         }
+
+        //防止compress.CompressFile(L"E:\\1.txt");这样的获得文件名为“E:\\1.txt”，
+        //  绝对路径的情况下不能与解压到的目标进行连接成有效路劲的问题
+        TString::size_type pos = outFilePath.find(L':');
+        if (pos != TString::npos)
+            outFilePath = outFilePath.substr(pos + 1);
+
         return true;
     }
 
