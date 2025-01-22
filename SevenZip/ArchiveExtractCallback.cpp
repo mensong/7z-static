@@ -89,11 +89,12 @@ namespace SevenZip
 #ifdef _DEBUG
             wprintf_s(L"SetTotal:%llu\n", size);
 #endif // _DEBUG
+
             m_totalSize = size;
             //	- SetTotal is never called for ZIP and 7z formats
             if (m_callback)
             {
-                m_callback->OnStart(m_absPath, size);
+                m_callback->OnStart(m_directory, size);
             }
             return S_OK;
         }
@@ -103,7 +104,7 @@ namespace SevenZip
 #ifdef _DEBUG
             wprintf_s(L"SetCompleted:%llu\n", *completeValue);
 #endif // _DEBUG
-            completeValue;
+
             //Callback Event calls
             /*
             NB:
@@ -114,7 +115,7 @@ namespace SevenZip
             {
                 //Don't call this directly, it will be called per file which is more consistent across archive types
                 //TODO: incorporate better progress tracking
-                //m_callback->OnProgress(m_absPath, *completeValue);
+                //m_callback->OnProgress(m_directory, *completeValue);
             }
             return S_OK;
         }
@@ -124,8 +125,9 @@ namespace SevenZip
 #ifdef _DEBUG
             wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
 #endif // _DEBUG
+
             if (m_callback)
-                m_callback->OnRadio(*inSize, *outSize);
+                m_callback->OnRadio(m_directory, *inSize, *outSize);
             return S_OK;
         }
 
@@ -159,6 +161,11 @@ namespace SevenZip
             m_index = index;
             // TODO: m_directory could be a relative path as "..\"
             m_absPath = FileSys::AppendPath(m_directory, FilePath);
+
+            if (m_callback)
+            {
+                m_callback->OnItem(*((FilePathInfo*)this));
+            }
 
             if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
                 return S_OK;

@@ -166,8 +166,7 @@ HRESULT SevenZipCompressor::CompressFilesToArchive(const TString& pathPrefix, co
     CMyComPtr<IOutArchive> archiver = UsefulFunctions::GetArchiveWriter(m_compressionFormat);
 	SetCompressionProperties( archiver );
 
-	////Set full outputFilePath including ending
-	//m_srcPath += UsefulFunctions::EndingFromCompressionFormat(m_compressionFormat);
+	m_srcPath = m_archivePath;
 
     CMyComPtr<OutStreamWrapper> outFile = new OutStreamWrapper(OpenArchiveStream());
     CMyComPtr<ArchiveUpdateCallback> updateCallback = new ArchiveUpdateCallback(pathPrefix, filePaths, m_srcPath, progressCallback);

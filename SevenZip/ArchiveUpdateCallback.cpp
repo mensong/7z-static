@@ -11,12 +11,12 @@ namespace intl
 {
 
 ArchiveUpdateCallback::ArchiveUpdateCallback( 
-	const TString& dirPrefix, const std::vector< FilePathInfo >& filePaths, const TString& srcPath, ProgressCallback* callback)
+	const TString& dirPrefix, const std::vector< FilePathInfo >& filePaths, const TString& archivePath, ProgressCallback* callback)
 	: m_refCount( 0 )
 	, m_dirPrefix( dirPrefix )
 	, m_filePaths( filePaths )
 	, m_callback(callback)
-	, m_srcPath(srcPath)
+	, m_archivePath(archivePath)
 	, PasswordIsDefined(false)
 	, AskPassword(false)
 {
@@ -83,20 +83,26 @@ STDMETHODIMP_(ULONG) ArchiveUpdateCallback::Release()
 
 STDMETHODIMP ArchiveUpdateCallback::SetTotal( UInt64 size )
 {
+#ifdef _DEBUG
     wprintf_s(L"SetTotal:%llu\n", size);
+#endif
+
 	if (m_callback)
 	{
-		m_callback->OnStart(m_srcPath, size);
+		m_callback->OnStart(m_archivePath, size);
 	}
 	return S_OK;
 }
 
 STDMETHODIMP ArchiveUpdateCallback::SetCompleted( const UInt64* completeValue )
 {
+#ifdef _DEBUG
     wprintf_s(L"SetCompleted:%llu\n", *completeValue);
+#endif
+
 	if (m_callback)
 	{
-		m_callback->OnProgress(m_srcPath, *completeValue);
+		m_callback->OnProgress(m_archivePath, *completeValue);
 	}
 	return S_OK;
 }
@@ -163,11 +169,22 @@ STDMETHODIMP ArchiveUpdateCallback::GetStream( UInt32 index, ISequentialInStream
 	}
 
 	const FilePathInfo& fileInfo = m_filePaths.at( index );
+
+#ifdef _DEBUG
+	wprintf_s(L"GetStream:%s\n", fileInfo.FilePath.c_str());
+#endif // _DEBUG
+	if (m_callback)
+	{
+		if (!m_callback->OnItem(fileInfo))
+		{
+			return S_OK;
+		}
+	}
+
 	if ( fileInfo.IsDirectory )
 	{
 		return S_OK;
 	}
-    wprintf_s(L"GetStream:%s\n", fileInfo.FilePath.c_str());
 
 	CMyComPtr< IStream > fileStream = FileSys::OpenFileToRead( fileInfo.FilePath );
 	if ( fileStream == NULL )
@@ -183,7 +200,9 @@ STDMETHODIMP ArchiveUpdateCallback::GetStream( UInt32 index, ISequentialInStream
 
 STDMETHODIMP ArchiveUpdateCallback::SetOperationResult( Int32 operationResult )
 {
+#ifdef _DEBUG
     wprintf_s(L"SetOperationResult:%u\n", operationResult);
+#endif // _DEBUG
 	return S_OK;
 }
 
@@ -219,7 +238,14 @@ STDMETHODIMP ArchiveUpdateCallback::CryptoGetTextPassword(BSTR* password)
 
 STDMETHODIMP ArchiveUpdateCallback::SetRatioInfo( const UInt64* inSize, const UInt64* outSize )
 {
-    wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
+#ifdef _DEBUG
+	wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
+#endif // _DEBUG
+
+	if (m_callback)
+	{
+		m_callback->OnRadio(m_archivePath, *inSize, *outSize);
+	}
 	return S_OK;
 }
 

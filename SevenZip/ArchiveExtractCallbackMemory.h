@@ -11,16 +11,15 @@
 #include "ProgressCallback.h"
 #include "FileStream.h"
 #include "FileStreamMemory.h"
+#include "FileInfo.h"
 
 namespace SevenZip
 {
 namespace intl
 {
-
-
-
-	class ArchiveExtractCallbackMemory 
-        : public IArchiveExtractCallback
+	class ArchiveExtractCallbackMemory
+		: public FilePathInfo
+        , public IArchiveExtractCallback
         , public ICryptoGetTextPassword
         , public ICompressProgressInfo
 	{
@@ -31,15 +30,24 @@ namespace intl
 		long m_refCount;
 		CMyComPtr< IInArchive > m_archiveHandler;
 		
-		TString m_relPath;
-		TString m_absPath;
-		bool m_isDir;
+		int m_index;
+
+		//TString m_relPath;
+		//TString m_absPath;
+		//bool m_isDir;
 
 		bool m_hasAttrib;
-		UInt32 m_attrib;
+		//UInt32 m_attrib;
 
-		bool m_hasNewFileSize;
-		UInt64 m_newFileSize; 
+		bool m_hasModifiedTime;
+		//FILETIME m_modifiedTime;
+		bool m_hasAccessedTime;
+		//FILETIME m_accessedTime;
+		bool m_hasCreatedTime;
+		//FILETIME m_createdTime;
+
+		//bool m_hasNewFileSize;
+		//UInt64 m_newFileSize; 
 
 		ProgressCallback* m_callback;
 
