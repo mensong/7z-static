@@ -11,6 +11,17 @@ class MyProgressCallback
 	: public SevenZip::ProgressCallback
 {
 public:
+	//是否拿文件信息
+	virtual bool EnableFilesInfo() 
+	{
+		return true; 
+	}
+	//获得文件信息。在EnableFilesInfo返回true时有效。返回true表示继续。返回false表示停止（只获得文件信息）。
+	virtual bool OnFileItems(const std::vector<SevenZip::FilePathInfo>& itemsInfo) 
+	{
+		return true; 
+	}
+
 	/*
 		开始: 压缩/解压
 		totalSize : 待压缩文件总大小  /   压缩包大小? or 待解压文件总大小?
