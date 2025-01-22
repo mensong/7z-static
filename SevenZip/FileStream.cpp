@@ -738,7 +738,14 @@ bool CFileStream::GetFile(const char *fileName, BlobBuffer &blob)
 int CFileStream::GetFileCount()
 {
 	return getParamCount();
-} 
+}
+const char* CFileStream::GetFileName(int index)
+{
+    if (index >= paramNames.size())
+        return "";
+    return std::next(paramNames.begin(), index)->first.c_str();
+}
+
 
 const unsigned char *CFileStream::GetAllBasePtr()
 {

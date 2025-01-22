@@ -154,6 +154,7 @@ public:
 	unsigned long GetFileSize(const char *fileName);
 	const unsigned char *GetFilePtr(const char *fileName);
 	int GetFileCount();
+    const char* GetFileName(int index);
 	unsigned int GetAllSize();
 	const unsigned char *GetAllBasePtr();
 };

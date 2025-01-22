@@ -6,7 +6,7 @@
 #include "InStreamWrapper.h"
 #include "PropVariant2.h"
 #include "UsefulFunctions.h"
-
+#include "GetArchiveItemInfoHelper.h"
 
 namespace SevenZip
 {
@@ -275,6 +275,33 @@ namespace SevenZip
         //        }
         //    }
         //}
+
+		if (callback && callback->EnableFilesInfo())
+		{
+			UInt32 mynumofitems = 0;
+			hr = archive->GetNumberOfItems(&mynumofitems);
+			std::vector<FilePathInfo> fileInfos;
+			fileInfos.reserve(mynumofitems);
+			for (UInt32 i = 0; i < mynumofitems; ++i)
+			{
+				FilePathInfo fileInfo;
+				GetArchiveItemInfoHelper::GetPropertyFilePath(archive, i, fileInfo.FilePath);
+				GetArchiveItemInfoHelper::GetPropertyAttributes(archive, i, fileInfo.Attributes);
+				GetArchiveItemInfoHelper::GetPropertyIsDir(archive, i, fileInfo.IsDirectory);
+				GetArchiveItemInfoHelper::GetPropertyModifiedTime(archive, i, fileInfo.LastWriteTime);
+				GetArchiveItemInfoHelper::GetPropertyAccessedTime(archive, i, fileInfo.LastAccessTime);
+				GetArchiveItemInfoHelper::GetPropertyCreatedTime(archive, i, fileInfo.CreationTime);
+				GetArchiveItemInfoHelper::GetPropertySize(archive, i, fileInfo.Size);
+				fileInfos.push_back(fileInfo);
+			}
+			if (!callback->OnFileItems(fileInfos))
+			{
+				//只为了取得文件信息,所以直接返回.
+				archive->Close();
+				return S_OK;
+			}
+		}
+
 
 		CMyComPtr< ArchiveExtractCallbackMemory > extractCallback = new ArchiveExtractCallbackMemory(archive, callback,fileStreams);
 		if (NULL != pSevenZipPassword)

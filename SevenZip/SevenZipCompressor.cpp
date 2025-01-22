@@ -23,7 +23,7 @@ SevenZipCompressor::~SevenZipCompressor()
 {
 }
 
-HRESULT SevenZipCompressor::CompressDirectory(
+HRESULT SevenZipCompressor::CompressDirectoryWithRoot(
 	const TString& directory, const TString& searchFilter, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
 {	
 	return FindAndCompressFiles( 
@@ -35,7 +35,7 @@ HRESULT SevenZipCompressor::CompressDirectory(
 				pSevenZipPassword);
 }
 
-HRESULT SevenZipCompressor::CompressFiles(
+HRESULT SevenZipCompressor::CompressDirectory(
 	const TString& directory, const TString& searchFilter, ProgressCallback* callback, bool includeSubdirs, SevenZipPassword *pSevenZipPassword)
 {
 	return FindAndCompressFiles( 
@@ -59,6 +59,38 @@ HRESULT SevenZipCompressor::CompressFile(const TString& filePath, ProgressCallba
 	m_srcPath = filePath;
 
 	return CompressFilesToArchive(TString(), files, callback, pSevenZipPassword);
+}
+
+HRESULT SevenZipCompressor::CompressFiles(
+	const TString& pathPrefix,
+	const std::vector<TString>& files,
+	ProgressCallback* callback, 
+	SevenZipPassword* pSevenZipPassword)
+{
+	TString pathPrefix_ = pathPrefix;
+	if (!pathPrefix_.empty() && *pathPrefix_.rbegin() != L'/' && *pathPrefix_.rbegin() != L'\\')
+		pathPrefix_ += L'\\';
+
+	std::vector< FilePathInfo > filesToCompress;
+	for (size_t i = 0; i < files.size(); i++)
+	{
+		std::vector< FilePathInfo > fileInfo;
+		if (FileSys::FileExists(files[i]))
+		{//文件
+			fileInfo = FileSys::GetFile(files[i]);
+		}
+		else
+		{//文件夹
+			fileInfo = FileSys::GetFilesInDirectory(files[i], L"*", true);
+			if (fileInfo.size() == 0)
+			{//空文件夹
+				fileInfo = FileSys::GetDirectoryInfo(files[i]);
+			}
+		}
+		filesToCompress.insert(filesToCompress.end(), fileInfo.begin(), fileInfo.end());
+	}
+
+	return CompressFilesToArchive(pathPrefix_, filesToCompress, callback, pSevenZipPassword);
 }
 
 CMyComPtr< IStream > SevenZipCompressor::OpenArchiveStream()

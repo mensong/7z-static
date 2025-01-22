@@ -2,7 +2,7 @@
 #include "SevenZipArchive.h"
 #include "CompressionFormat.h"
 #include "ListCallback.h"
-
+#include "SevenZipPwd.h"
 
 namespace SevenZip
 {
@@ -13,9 +13,9 @@ namespace SevenZip
 		SevenZipLister();
 		virtual ~SevenZipLister();
 
-		virtual bool ListArchive(ListCallback* callback);
+		virtual HRESULT ListArchive(ListCallback* callback, SevenZipPassword* pSevenZipPassword = NULL);
 
 	private:
-		bool ListArchive(const CMyComPtr< IStream >& archiveStream, ListCallback* callback);
+		HRESULT ListArchive(const CMyComPtr< IStream >& archiveStream, ListCallback* callback, SevenZipPassword* pSevenZipPassword);
 	};
 }

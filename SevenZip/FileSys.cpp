@@ -325,6 +325,28 @@ std::vector< FilePathInfo > FileSys::GetFilesInDirectory( const TString& directo
 	return cb.GetFiles();
 }
 
+std::vector< FilePathInfo > FileSys::GetDirectoryInfo(const TString& directory)
+{
+	std::vector< FilePathInfo > infos;
+	WIN32_FIND_DATA fdata;
+	HANDLE hFile = FindFirstFile(directory.c_str(), &fdata);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return infos;
+	}
+
+	TString root = FileSys::GetPath(directory);
+	FilePathInfo fpInfo = PathScanner::ConvertFindInfo(root, fdata);
+	if (fpInfo.IsDirectory && !PathScanner::IsSpecialFileName(fpInfo.FileName))
+	{
+		infos.push_back(fpInfo);
+	}
+
+	FindClose(hFile);
+
+	return infos;
+}
+
 CMyComPtr< IStream > FileSys::OpenFileToRead( const TString& filePath )
 {
 	CMyComPtr< IStream > fileStream;

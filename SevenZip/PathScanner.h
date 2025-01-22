@@ -32,7 +32,7 @@ namespace intl
 		static void Scan( const TString& root, Callback& cb );
 		static void Scan( const TString& root, const TString& searchPattern, Callback& cb );
 
-	private:
+	public:
 
 		static bool ExamineFiles( const TString& directory, const TString& searchPattern, Callback& cb );
 		static void ExamineDirectories( const TString& directory, std::deque< TString >& subDirs, Callback& cb );

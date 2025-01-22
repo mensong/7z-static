@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include <vector>
 #include "SevenZipArchive.h"
 #include "FileInfo.h"
@@ -20,7 +18,7 @@ namespace SevenZip
 
 		// Includes the last directory as the root in the archive, e.g. specifying "C:\Temp\MyFolder"
 		// makes "MyFolder" the single root item in archive with the files within it included.
-		virtual HRESULT CompressDirectory(
+		virtual HRESULT CompressDirectoryWithRoot(
 			const TString& directory, 
 			const TString& searchFilter = L"*", 
 			ProgressCallback* callback = NULL, 
@@ -29,7 +27,7 @@ namespace SevenZip
 
 		// Excludes the last directory as the root in the archive, its contents are at root instead. E.g.
 		// specifying "C:\Temp\MyFolder" make the files in "MyFolder" the root items in the archive.
-		virtual HRESULT CompressFiles(
+		virtual HRESULT CompressDirectory(
 			const TString& directory, 
 			const TString& searchFilter = L"*", 
 			ProgressCallback* callback = NULL, 
@@ -41,6 +39,13 @@ namespace SevenZip
 			const TString& filePath, 
 			ProgressCallback* callback = NULL, 
 			SevenZipPassword *pSevenZipPassword=NULL);
+
+		//Compress files to archive
+        virtual HRESULT CompressFiles(
+			const TString& pathPrefix,
+			const std::vector<TString>& files,
+			ProgressCallback* callback = NULL,
+			SevenZipPassword *pSevenZipPassword = NULL);
 
 	private:
 		//the final compression result compression path. Used for tracking in callbacks
