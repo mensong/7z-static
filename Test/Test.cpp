@@ -108,14 +108,14 @@ int main()
 		files.push_back(L"tmp\\Win32\\Debug\\Test.ilk");
 		files.push_back(L"tmp\\x64");
 		files.push_back(L"tmp\\空文件夹");
-		if (ret != compress.CompressFiles(L"tmp", files, & cb, &pwd))		
+		if (ret != compress.CompressFiles(L"tmp", files, & cb, &pwd))
 		//if (ret != compress.CompressDirectoryWithRoot(L"tmp", L"*", &cb, true, &pwd))
 		//if (ret != compress.CompressDirectory(L"D:\\Workspace\\Git\\7z-static\\Test\\tmp", L"*", &cb, true, &pwd))
+		//if (compress.CompressFile(L"tmp\\Win32\\Debug\\Test.ilk", &cb, &pwd))
 		{
 			wprintf_s(L"compress dir to 7z failed\n");
 			return 1;
 		}
-		//compress.CompressFile(L"E:\\2.mdb", &cb, &pwd);
 	}
 
 	{//列出文件
