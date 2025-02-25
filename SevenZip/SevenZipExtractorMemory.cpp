@@ -303,7 +303,8 @@ namespace SevenZip
 		}
 
 
-		CMyComPtr< ArchiveExtractCallbackMemory > extractCallback = new ArchiveExtractCallbackMemory(archive, callback,fileStreams);
+		CMyComPtr< ArchiveExtractCallbackMemory > extractCallback = new ArchiveExtractCallbackMemory(
+			archive, m_archivePath, callback,fileStreams);
 		if (NULL != pSevenZipPassword)
 		{
 			extractCallback->PasswordIsDefined = pSevenZipPassword->PasswordIsDefined;
@@ -324,7 +325,7 @@ namespace SevenZip
         }
         if (callback)
         {
-            callback->OnWorkEnd(L":memory:"/*m_archivePath*/);
+            callback->OnWorkEnd(m_archivePath);
         }
         archive->Close();
         return hr;

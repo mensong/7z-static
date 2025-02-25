@@ -17,10 +17,12 @@ namespace SevenZip
 
 		ArchiveExtractCallbackMemory::ArchiveExtractCallbackMemory(
 			const CMyComPtr< IInArchive >& archiveHandler,
+            const TString& archivePath,
 			ProgressCallback* callback,
 			CFileStream &fileStreams)
 			: m_refCount(0)
 			, m_archiveHandler(archiveHandler)
+            , m_archivePath(archivePath)
 			, m_callback(callback)
 			, m_totalSize(0)
 			, PasswordIsDefined(false)
@@ -92,7 +94,7 @@ namespace SevenZip
 			//	- SetTotal is never called for ZIP and 7z formats
 			if (m_callback)
 			{
-				m_callback->OnWorkStart(L":memory:", size);
+				m_callback->OnWorkStart(m_archivePath, size);
 			}
 			return S_OK;
 		}
@@ -125,7 +127,7 @@ namespace SevenZip
 //#endif // _DEBUG
 
 			if (m_callback)
-				m_callback->OnWorkRadio(L":memory:", *inSize, *outSize);
+				m_callback->OnWorkRadio(m_archivePath, *inSize, *outSize);
 			return S_OK;
 		}
 
@@ -230,7 +232,7 @@ namespace SevenZip
             if (FilePath.empty())
             {
                 if (m_callback)
-                    m_callback->OnWorkEnd(L":memory:"/*L""*/);
+                    m_callback->OnWorkEnd(m_archivePath/*L""*/);
                 return S_OK;
             }
 			  

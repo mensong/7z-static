@@ -61,9 +61,13 @@ namespace intl
         std::vector<RollBack_Info> m_rollbacks;
 
 		CFileStream &_fileStreams;
+
+		TString m_archivePath;
+
 	public:
 
-		ArchiveExtractCallbackMemory(const CMyComPtr< IInArchive >& archiveHandler, ProgressCallback* callback, CFileStream &fileStreams);
+		ArchiveExtractCallbackMemory(const CMyComPtr< IInArchive >& archiveHandler, 
+			const TString& archivePath, ProgressCallback* callback, CFileStream &fileStreams);
 		virtual ~ArchiveExtractCallbackMemory();
 
 		STDMETHOD(QueryInterface)( REFIID iid, void** ppvObject );
