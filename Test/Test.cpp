@@ -23,14 +23,17 @@ public:
 	}
 
 	/*
-		开始: 压缩/解压
-		totalSize : 待压缩文件总大小  /   压缩包大小? or 待解压文件总大小?
-		*/
-	virtual void OnStart(const std::wstring& filePath, unsigned __int64 totalSize)
+	开始: 压缩/解压
+	totalSize : 待压缩文件总大小  /   压缩包大小? or 待解压文件总大小?
+	*/
+	virtual void OnWorkStart(const std::wstring& filePath, unsigned __int64 totalSize)
 	{
 	}
 
-	virtual bool OnItem(const SevenZip::FilePathInfo& itemInfo)
+	/*
+	压缩/解压 的信息
+	*/
+	virtual bool OnWorkItemInfo(const SevenZip::FilePathInfo& itemInfo)
 	{
 		return true;
 	}
@@ -40,7 +43,7 @@ public:
 	inSize   : 已处理文件总大小  / 已处理压缩包大小
 	outSize  : 生成压缩包大小    / 解压出来文件总大小
 	*/
-	virtual void OnRadio(const std::wstring& filePath, unsigned __int64  inSize, unsigned __int64 outSize)
+	virtual void OnWorkRadio(const std::wstring& filePath, unsigned __int64  inSize, unsigned __int64 outSize)
 	{
 	}
 
@@ -49,7 +52,7 @@ public:
 	filePath       : 文件
 	bytesCompleted : 已处理大小
 	*/
-	virtual void OnProgress(const std::wstring& filePath, unsigned __int64 bytesCompleted)
+	virtual void OnWorkProgress(const std::wstring& filePath, unsigned __int64 bytesCompleted)
 	{
 	}
 
@@ -57,7 +60,7 @@ public:
 	压缩/解压完成
 	filePath : 压缩包路径
 	*/
-	virtual void OnEnd(const std::wstring& filePath)
+	virtual void OnWorkEnd(const std::wstring& filePath)
 	{
 	}
 
@@ -67,7 +70,7 @@ public:
 	ItemPath   : 相对路径
 	return     : 是否继续解压
 	*/
-	virtual bool OnFileBegin(const std::wstring& destFolder, std::wstring& ItemPath)
+	virtual bool OnFileExtractBegin(const std::wstring& destFolder, std::wstring& ItemPath)
 	{
 		return true;
 	}
@@ -78,7 +81,7 @@ public:
 	bytesCompleted : 文件尺寸
 	return         : 是否继续解压
 	*/
-	virtual bool OnFileDone(const std::wstring& filePath, unsigned __int64 bytesCompleted)
+	virtual bool OnFileExtractDone(const std::wstring& filePath, unsigned __int64 bytesCompleted)
 	{
 		return true;
 	}
@@ -88,7 +91,7 @@ public:
 	filePath       : 文件路径
 	return         : 是否继续回滚
 	*/
-	virtual void OnRollBack(const std::wstring& filePath)
+	virtual void OnFileExtractRollBack(const std::wstring& filePath)
 	{
 	}
 };

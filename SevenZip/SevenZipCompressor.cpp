@@ -182,7 +182,7 @@ HRESULT SevenZipCompressor::CompressFilesToArchive(const TString& pathPrefix, co
 
 	if (progressCallback)
 	{
-		progressCallback->OnEnd(m_srcPath);	//Todo: give full path support
+		progressCallback->OnWorkEnd(m_srcPath);	//Todo: give full path support
 	}
 
     return hr;

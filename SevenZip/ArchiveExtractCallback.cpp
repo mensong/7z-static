@@ -86,24 +86,24 @@ namespace SevenZip
 
         STDMETHODIMP ArchiveExtractCallback::SetTotal(UInt64 size)
         {
-#ifdef _DEBUG
-            wprintf_s(L"SetTotal:%llu\n", size);
-#endif // _DEBUG
+//#ifdef _DEBUG
+//            wprintf_s(L"SetTotal:%llu\n", size);
+//#endif // _DEBUG
 
             m_totalSize = size;
             //	- SetTotal is never called for ZIP and 7z formats
             if (m_callback)
             {
-                m_callback->OnStart(m_directory, size);
+                m_callback->OnWorkStart(m_directory, size);
             }
             return S_OK;
         }
 
         STDMETHODIMP ArchiveExtractCallback::SetCompleted(const UInt64* completeValue)
         {
-#ifdef _DEBUG
-            wprintf_s(L"SetCompleted:%llu\n", *completeValue);
-#endif // _DEBUG
+//#ifdef _DEBUG
+//            wprintf_s(L"SetCompleted:%llu\n", *completeValue);
+//#endif // _DEBUG
 
             //Callback Event calls
             /*
@@ -115,19 +115,19 @@ namespace SevenZip
             {
                 //Don't call this directly, it will be called per file which is more consistent across archive types
                 //TODO: incorporate better progress tracking
-                //m_callback->OnProgress(m_directory, *completeValue);
+                //m_callback->OnWorkProgress(m_directory, *completeValue);
             }
             return S_OK;
         }
 
         STDMETHODIMP ArchiveExtractCallback::SetRatioInfo(const UInt64 *inSize, const UInt64 *outSize)
         {
-#ifdef _DEBUG
-            wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
-#endif // _DEBUG
+//#ifdef _DEBUG
+//            wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
+//#endif // _DEBUG
 
             if (m_callback)
-                m_callback->OnRadio(m_directory, *inSize, *outSize);
+                m_callback->OnWorkRadio(m_directory, *inSize, *outSize);
             return S_OK;
         }
 
@@ -164,7 +164,7 @@ namespace SevenZip
 
             if (m_callback)
             {
-                m_callback->OnItem(*((FilePathInfo*)this));
+                m_callback->OnWorkItemInfo(*((FilePathInfo*)this));
             }
 
             if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
@@ -179,7 +179,7 @@ namespace SevenZip
 
             if (m_callback)
             {
-                if (!m_callback->OnFileBegin(m_directory, FilePath))
+                if (!m_callback->OnFileExtractBegin(m_directory, FilePath))
                 {
                     //stop decompress
                     return E_FAIL;
@@ -288,7 +288,7 @@ namespace SevenZip
             if (m_absPath.empty())
             {
                 if (m_callback)
-                    m_callback->OnEnd(m_directory);
+                    m_callback->OnWorkEnd(m_directory);
                 return S_OK;
             }
 
@@ -312,9 +312,9 @@ namespace SevenZip
 
             if (m_callback)
             {
-                if(!m_callback->OnFileDone(m_absPath, Size))
+                if(!m_callback->OnFileExtractDone(m_absPath, Size))
                     return E_FAIL;
-                m_callback->OnProgress(m_absPath, Size);
+                m_callback->OnWorkProgress(m_absPath, Size);
             }
             return S_OK;
         }
@@ -579,7 +579,7 @@ namespace SevenZip
             {
                 RollBack_Info& a = m_rollbacks[i];
                 if (m_callback)
-                    m_callback->OnRollBack(a.original_path);
+                    m_callback->OnFileExtractRollBack(a.original_path);
 
                 if (a.backup_path.empty())
                     FileSys::RemovePath(a.original_path);

@@ -184,7 +184,7 @@ namespace SevenZip
 
         if (callback)
         {
-            callback->OnEnd(m_archivePath);
+            callback->OnWorkEnd(m_archivePath);
         }
 
         archive->Close();

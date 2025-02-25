@@ -12,14 +12,14 @@ namespace SevenZip
         开始: 压缩/解压
         totalSize : 待压缩文件总大小  /   压缩包大小? or 待解压文件总大小?
         */
-        virtual void OnStart(const std::wstring& filePath, unsigned __int64 totalSize) 
+        virtual void OnWorkStart(const std::wstring& filePath, unsigned __int64 totalSize) 
         {
         }
 
         /*
-        * 处理每一个压缩对象
+        压缩/解压每一个压缩对象
         */
-        virtual bool OnItem(const SevenZip::FilePathInfo& itemInfo)
+        virtual bool OnWorkItemInfo(const SevenZip::FilePathInfo& itemInfo)
         {
             return true;
         }
@@ -29,7 +29,7 @@ namespace SevenZip
         inSize   : 已处理文件总大小  / 已处理压缩包大小
         outSize  : 生成压缩包大小    / 解压出来文件总大小
         */
-        virtual void OnRadio(const std::wstring& filePath, unsigned __int64  inSize, unsigned __int64 outSize)
+        virtual void OnWorkRadio(const std::wstring& filePath, unsigned __int64  inSize, unsigned __int64 outSize)
         {
         }
 
@@ -38,7 +38,7 @@ namespace SevenZip
         filePath       : 文件
         bytesCompleted : 已处理大小
         */
-        virtual void OnProgress(const std::wstring& filePath, unsigned __int64 bytesCompleted) 
+        virtual void OnWorkProgress(const std::wstring& filePath, unsigned __int64 bytesCompleted) 
         {
         }
         
@@ -46,7 +46,7 @@ namespace SevenZip
         压缩/解压完成
         filePath : 目标路径
         */
-        virtual void OnEnd(const std::wstring& filePath)
+        virtual void OnWorkEnd(const std::wstring& filePath)
         {
         }
 
@@ -56,7 +56,7 @@ namespace SevenZip
         ItemPath   : 相对路径
         return     : 是否继续解压
         */
-        virtual bool OnFileBegin(const std::wstring& destFolder, std::wstring& ItemPath)
+        virtual bool OnFileExtractBegin(const std::wstring& destFolder, std::wstring& ItemPath)
         { 
             return true; 
         }
@@ -67,7 +67,7 @@ namespace SevenZip
         bytesCompleted : 文件尺寸
         return         : 是否继续解压
         */
-        virtual bool OnFileDone(const std::wstring& filePath, unsigned __int64 bytesCompleted) 
+        virtual bool OnFileExtractDone(const std::wstring& filePath, unsigned __int64 bytesCompleted) 
         { 
             return true; 
         }
@@ -77,7 +77,7 @@ namespace SevenZip
         filePath       : 文件路径
         return         : 是否继续回滚
         */
-        virtual void OnRollBack(const std::wstring& filePath)
+        virtual void OnFileExtractRollBack(const std::wstring& filePath)
         {
         }
 

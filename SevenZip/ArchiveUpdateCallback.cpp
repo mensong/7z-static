@@ -83,26 +83,26 @@ STDMETHODIMP_(ULONG) ArchiveUpdateCallback::Release()
 
 STDMETHODIMP ArchiveUpdateCallback::SetTotal( UInt64 size )
 {
-#ifdef _DEBUG
-    wprintf_s(L"SetTotal:%llu\n", size);
-#endif
+//#ifdef _DEBUG
+//    wprintf_s(L"SetTotal:%llu\n", size);
+//#endif
 
 	if (m_callback)
 	{
-		m_callback->OnStart(m_archivePath, size);
+		m_callback->OnWorkStart(m_archivePath, size);
 	}
 	return S_OK;
 }
 
 STDMETHODIMP ArchiveUpdateCallback::SetCompleted( const UInt64* completeValue )
 {
-#ifdef _DEBUG
-    wprintf_s(L"SetCompleted:%llu\n", *completeValue);
-#endif
+//#ifdef _DEBUG
+//    wprintf_s(L"SetCompleted:%llu\n", *completeValue);
+//#endif
 
 	if (m_callback)
 	{
-		m_callback->OnProgress(m_archivePath, *completeValue);
+		m_callback->OnWorkProgress(m_archivePath, *completeValue);
 	}
 	return S_OK;
 }
@@ -170,12 +170,13 @@ STDMETHODIMP ArchiveUpdateCallback::GetStream( UInt32 index, ISequentialInStream
 
 	const FilePathInfo& fileInfo = m_filePaths.at( index );
 
-#ifdef _DEBUG
-	wprintf_s(L"GetStream:%s\n", fileInfo.FilePath.c_str());
-#endif // _DEBUG
+//#ifdef _DEBUG
+//	wprintf_s(L"GetStream:%s\n", fileInfo.FilePath.c_str());
+//#endif // _DEBUG
+
 	if (m_callback)
 	{
-		if (!m_callback->OnItem(fileInfo))
+		if (!m_callback->OnWorkItemInfo(fileInfo))
 		{
 			return S_OK;
 		}
@@ -200,9 +201,10 @@ STDMETHODIMP ArchiveUpdateCallback::GetStream( UInt32 index, ISequentialInStream
 
 STDMETHODIMP ArchiveUpdateCallback::SetOperationResult( Int32 operationResult )
 {
-#ifdef _DEBUG
-    wprintf_s(L"SetOperationResult:%u\n", operationResult);
-#endif // _DEBUG
+//#ifdef _DEBUG
+//    wprintf_s(L"SetOperationResult:%u\n", operationResult);
+//#endif // _DEBUG
+
 	return S_OK;
 }
 
@@ -238,13 +240,13 @@ STDMETHODIMP ArchiveUpdateCallback::CryptoGetTextPassword(BSTR* password)
 
 STDMETHODIMP ArchiveUpdateCallback::SetRatioInfo( const UInt64* inSize, const UInt64* outSize )
 {
-#ifdef _DEBUG
-	wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
-#endif // _DEBUG
+//#ifdef _DEBUG
+//	wprintf_s(L"SetRatioInfo:%llu-%llu\n", *inSize, *outSize);
+//#endif // _DEBUG
 
 	if (m_callback)
 	{
-		m_callback->OnRadio(m_archivePath, *inSize, *outSize);
+		m_callback->OnWorkRadio(m_archivePath, *inSize, *outSize);
 	}
 	return S_OK;
 }
