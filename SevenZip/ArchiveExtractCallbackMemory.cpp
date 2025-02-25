@@ -230,7 +230,7 @@ namespace SevenZip
             if (FilePath.empty())
             {
                 if (m_callback)
-                    m_callback->OnWorkEnd(L"");
+                    m_callback->OnWorkEnd(L":memory:"/*L""*/);
                 return S_OK;
             }
 			  

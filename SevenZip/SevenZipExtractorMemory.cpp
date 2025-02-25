@@ -324,7 +324,7 @@ namespace SevenZip
         }
         if (callback)
         {
-            callback->OnWorkEnd(m_archivePath);
+            callback->OnWorkEnd(L":memory:"/*m_archivePath*/);
         }
         archive->Close();
         return hr;

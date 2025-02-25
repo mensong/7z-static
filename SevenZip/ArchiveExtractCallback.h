@@ -64,10 +64,13 @@ namespace intl
         };
         std::vector<RollBack_Info> m_rollbacks;
 
+		TString m_archivePath;
+
 	public:
 
         ArchiveExtractCallback(
 			const CMyComPtr< IInArchive >& archiveHandler, 
+			const TString& archivePath,
 			const TString& directory, 
 			OverwriteModeEnum mode, 
 			ProgressCallback* callback);

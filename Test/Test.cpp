@@ -28,6 +28,7 @@ public:
 	*/
 	virtual void OnWorkStart(const std::wstring& filePath, unsigned __int64 totalSize)
 	{
+		std::wcout << L"Start:" << filePath << std::endl;
 	}
 
 	/*
@@ -35,6 +36,7 @@ public:
 	*/
 	virtual bool OnWorkItemInfo(const SevenZip::FilePathInfo& itemInfo)
 	{
+		std::wcout << L"处理文件:" << itemInfo.FilePath << std::endl;
 		return true;
 	}
 
@@ -45,6 +47,9 @@ public:
 	*/
 	virtual void OnWorkRadio(const std::wstring& filePath, unsigned __int64  inSize, unsigned __int64 outSize)
 	{
+		//if (inSize == 0)
+		//	inSize = 1;
+		//std::wcout << filePath << L" Radio:" << (int)(((double)outSize / inSize) * 100) << "%" << std::endl;
 	}
 
 	/*
@@ -54,6 +59,7 @@ public:
 	*/
 	virtual void OnWorkProgress(const std::wstring& filePath, unsigned __int64 bytesCompleted)
 	{
+		//std::wcout << filePath << L" Completed bytes:" << bytesCompleted << std::endl;
 	}
 
 	/*
@@ -62,6 +68,7 @@ public:
 	*/
 	virtual void OnWorkEnd(const std::wstring& filePath)
 	{
+		std::wcout << L"End:" << filePath << std::endl;
 	}
 
 	/*
@@ -98,6 +105,9 @@ public:
 
 int main()
 {
+	system("chcp 936");
+	std::wcout.imbue(std::locale("chs"));
+
 	HRESULT ret = S_OK;
 	SevenZip::SevenZipPassword pwd(true, L"123456");
 	MyProgressCallback cb;

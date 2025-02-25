@@ -162,7 +162,8 @@ namespace SevenZip
         }
 
         CMyComPtr< ArchiveExtractCallback > extractCallback = new ArchiveExtractCallback(
-            archive, destDirectory, m_overwriteMode, callback);
+            archive, m_archivePath, destDirectory, m_overwriteMode, callback);
+        
 		if (NULL != pSevenZipPassword)
 		{
 			extractCallback->PasswordIsDefined = pSevenZipPassword->PasswordIsDefined;

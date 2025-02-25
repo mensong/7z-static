@@ -14,16 +14,18 @@ namespace SevenZip
         const TString EmptyFileAlias = _T("[Content]");
 
 
-        ArchiveExtractCallback::ArchiveExtractCallback(
-            const CMyComPtr< IInArchive >& archiveHandler,
-            const TString& directory,
-            OverwriteModeEnum mode,
-            ProgressCallback* callback)
-            : m_directory(directory)
-            , m_refCount(0)
-            , m_archiveHandler(archiveHandler)
-            , m_callback(callback)
-            , m_overwriteMode(mode)
+		ArchiveExtractCallback::ArchiveExtractCallback(
+			const CMyComPtr< IInArchive >& archiveHandler,
+			const TString& archivePath,
+			const TString& directory,
+			OverwriteModeEnum mode,
+			ProgressCallback* callback)
+			: m_archivePath(archivePath)
+			, m_directory(directory)
+			, m_refCount(0)
+			, m_archiveHandler(archiveHandler)
+			, m_callback(callback)
+			, m_overwriteMode(mode)
 			, PasswordIsDefined(false)
         {
             if (*m_directory.rbegin() != L'\\' && *m_directory.rbegin() != L'/')
@@ -94,7 +96,7 @@ namespace SevenZip
             //	- SetTotal is never called for ZIP and 7z formats
             if (m_callback)
             {
-                m_callback->OnWorkStart(m_directory, size);
+                m_callback->OnWorkStart(m_archivePath, size);
             }
             return S_OK;
         }
