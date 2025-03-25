@@ -135,7 +135,9 @@ TString FileSys::ExtractRelativePath( const TString& basePath, const TString& fu
 
 	if ( basePath != fullPath.substr( 0, basePath.size() ) )
 	{
-		return TString();
+		//如果不能进行相对路径处理，则直接取文件名，并放在压缩包中的根位置
+		return GetFileName(fullPath);
+		//return TString();
 	}
 	return fullPath.substr( basePath.size(), fullPath.size() - basePath.size() );
 }
