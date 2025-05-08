@@ -109,7 +109,7 @@ int main()
 	std::wcout.imbue(std::locale("chs"));
 
 	HRESULT ret = S_OK;
-	//SevenZip::SevenZipPassword pwd(true, L"123456");
+	SevenZip::SevenZipPassword pwd(true, L"123456");
 	MyProgressCallback cb;
 
 	{//压缩文件
@@ -123,7 +123,7 @@ int main()
 		//files.push_back(L"tmp\\x64");
 		//files.push_back(L"tmp\\空文件夹");
 		//if (ret != compress.CompressFiles(L"tmp", files, & cb, &pwd))
-		if (ret != compress.CompressDirectoryWithRoot(L"tmp", L"*", &cb, true, NULL))
+		if (ret != compress.CompressDirectoryWithRoot(L"tmp", L"*", &cb, true, &pwd))
 		//if (ret != compress.CompressDirectory(L"D:\\Workspace\\Git\\7z-static\\Test\\tmp", L"*", &cb, true, &pwd))
 		//if (compress.CompressFile(L"tmp\\Win32\\Debug\\Test.ilk", &cb, &pwd))
 		{
@@ -135,7 +135,7 @@ int main()
 	{//列出文件
 		SevenZip::SevenZipLister lister;
 		lister.SetArchivePath(L"test.7z");
-		if (ret != lister.ListArchive(&cb, NULL))
+		if (ret != lister.ListArchive(&cb, &pwd))
 		{
 			wprintf_s(L"List 7z failed\n");
 			return 1;
@@ -145,7 +145,7 @@ int main()
 	{//解压文件到目录
 		SevenZip::SevenZipExtractor decompress;
 		decompress.SetArchivePath(L"test.7z");
-		if (ret != decompress.ExtractArchive(L"unzip", &cb, NULL))
+		if (ret != decompress.ExtractArchive(L"unzip", &cb, &pwd))
 		{
 			wprintf_s(L"decompress 7z to dir failed\n");
 			return 1;
@@ -156,7 +156,7 @@ int main()
 		SevenZip::SevenZipExtractorMemory extractor;
 		extractor.SetArchivePath(L"test.7z");
 		CFileStream fs;
-		if (ret != extractor.ExtractArchive(fs, &cb, NULL))
+		if (ret != extractor.ExtractArchive(fs, &cb, &pwd))
 		{
 			wprintf_s(L"decompress 7z to memory failed\n");
 			return 1;
