@@ -113,7 +113,7 @@ HRESULT SevenZipCompressor::FindAndCompressFiles(
 {
     //修正压缩包里面有空的顶级文件夹的的情况
     TString pathPrefix = pathPrefix_;
-    if (!pathPrefix.empty() && *pathPrefix.rbegin() != L'/'&&*pathPrefix.rbegin() != L'\\')
+	if (!pathPrefix.empty() && *pathPrefix.rbegin() != L'/' && *pathPrefix.rbegin() != L'\\')
         pathPrefix += L'\\';
 
 	if ( !FileSys::DirectoryExists( directory ) )
